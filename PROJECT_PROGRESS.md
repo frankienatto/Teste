@@ -50,6 +50,11 @@
 
 ---
 
+### MILESTONE 7 — Operações de Campo & Inteligência de Governança [EM ANDAMENTO]
+- [x] **Etapa 7.1**: Housekeeping Intelligence (`housekeepingTypes`, `housekeepingRepository`, `housekeepingService`, `housekeepingRouter`, motor de tarefas de governança, máquina de estados `dirty` -> `assigned` -> `cleaning` -> `clean` -> `inspection` -> `available`, geração automática de tarefas no check-out, bloqueio para UHs em manutenção/fora de serviço, cancelamento com histórico, publicação Event-Driven na Guest Timeline, endpoints REST `/api/housekeeping/tasks` e `/api/housekeeping/dashboard`, integração read-only no `ContextService` para `housekeeping_agent`).
+
+---
+
 ## Status Atual da Plataforma
 - **Build**: ✅ Aprovado
 - **Lint**: ✅ Aprovado
@@ -60,5 +65,6 @@
 - **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
+- **Milestone 7 (Etapa 7.1)**: 100% Concluído e validado com o módulo Housekeeping Intelligence, máquina de estados de limpeza/vistoria, automação de tarefas no check-out, dashboard de governança, publicação na Guest Timeline e suporte read-only no `ContextService` para `housekeeping_agent`.
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

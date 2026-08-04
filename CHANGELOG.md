@@ -2,6 +2,21 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 7 - Etapa 7.1: Housekeeping Intelligence] - 2026-08-03
+
+### Adicionado
+- **Módulo Housekeeping Intelligence (`server/modules/housekeeping/`)**:
+  - `housekeepingTypes.ts`: Estrutura do domínio de Governança (`HousekeepingTask`, `CleaningStatus`, `InspectionStatus`, `TaskPriority`, `HousekeepingDashboardSummary`, DTOs).
+  - `housekeepingRepository.ts`: Repositório in-memory multi-tenant (`HousekeepingRepository`) com isolamento por `organizationId` e `propertyId`.
+  - `housekeepingService.ts`: Serviço central de governança com máquina de estados operacional (`dirty` -> `assigned` -> `cleaning` -> `clean` -> `inspection` -> `available`), automação de tarefas no check-out, bloqueio para UHs em manutenção/fora de serviço, cancelamento com histórico preservado, publicação de eventos na Guest Timeline (`appendTimelineEvent`) e resumo do dashboard.
+  - `housekeepingRouter.ts`: Endpoints REST (`GET /api/housekeeping/tasks`, `POST /api/housekeeping/tasks`, `PATCH /api/housekeeping/tasks/:id`, `GET /api/housekeeping/dashboard`).
+- **Automação no PMS (`server/modules/pms/reservationService.ts`)**:
+  - Disparo automático de `housekeepingService.createTaskForCheckout` ao realizar check-out em reservas.
+- **Integração com o ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão de `housekeeping` no `pmsData` com resumo de fila, unidades prioritárias e SLA médio para consumo read-only pelos agentes de IA.
+- **Prompt Registry (`server/ai/promptRegistry.ts`)**:
+  - Atualização do `compileSystemInstruction` e prompt do `housekeeping_agent` para apresentar dados em tempo real da governança.
+
 ## [Milestone 6 - Etapa 6.3: Guest Intelligence & Concierge AI] - 2026-08-03
 
 ### Adicionado

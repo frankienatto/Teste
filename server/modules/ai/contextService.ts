@@ -9,6 +9,7 @@ import { googleCalendarService } from '../integration/gcal/googleCalendarService
 import { crmService } from '../crm/crmService.ts';
 import { timelineService } from '../crm/timelineService.ts';
 import { guestIntelligenceService } from '../crm/guestIntelligenceService.ts';
+import { housekeepingService } from '../housekeeping/housekeepingService.ts';
 
 
 export class ContextService {
@@ -88,11 +89,12 @@ export class ContextService {
     // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
     try {
-      const [categories, units, inventorySummary, reservations] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
-        reservationService.listReservations(resolvedOrgId, resolvedPropId)
+        reservationService.listReservations(resolvedOrgId, resolvedPropId),
+        housekeepingService.getHousekeepingSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
@@ -129,7 +131,8 @@ export class ContextService {
           totalStaysRecorded: crmMetrics.totalStaysRecorded,
           totalRevenueGenerated: crmMetrics.totalRevenueGenerated,
           activeGuestTimelineSummary: guestTimelineSummary
-        }
+        },
+        housekeeping: housekeepingSummary
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);

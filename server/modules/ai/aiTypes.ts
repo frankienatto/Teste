@@ -64,6 +64,9 @@ export interface OperationalContext {
       occupancyRatePercent: number;
       totalActiveReservations: number;
     };
+    integration?: Record<string, any>;
+    guestCrm?: Record<string, any>;
+    housekeeping?: any;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;

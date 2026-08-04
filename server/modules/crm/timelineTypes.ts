@@ -18,6 +18,8 @@ export type TimelineEventType =
   | 'unit.changed'
   | 'reception.note'
   | 'housekeeping.note'
+  | 'housekeeping.task_created'
+  | 'housekeeping.task_updated'
   | 'preference.updated'
   | 'classification.changed'
   | 'concierge.interaction'

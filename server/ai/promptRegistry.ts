@@ -237,6 +237,14 @@ export function compileSystemInstruction(
           contextLines.push(`  * [${r.reservationId}] Hóspede: ${r.guest?.fullName} (${r.guest?.email}) | UH ID: ${r.unitId} | Datas: ${r.stayPeriod?.checkInDate} a ${r.stayPeriod?.checkOutDate} (${r.stayPeriod?.numberOfNights} noites) | Status: '${r.status}' | Total: R$ ${r.totalAmount}`);
         });
       }
+
+      if (pms.housekeeping) {
+        const hk = pms.housekeeping;
+        contextLines.push(`\nGovernança & Housekeeping Intelligence:`);
+        contextLines.push(`- Unidades Disponíveis (Limpas): ${hk.summary.availableUnits} | Sujas: ${hk.summary.dirtyUnits} | Limpeza em Andamento: ${hk.summary.cleaningInProcess} | Vistoria: ${hk.summary.awaitingInspection} | Bloqueadas/Manutenção: ${hk.summary.blockedOrMaintenance}`);
+        contextLines.push(`- Fila de Limpeza Ativa: ${hk.queueLength} tarefas pendentes | UHs Prioritárias: ${hk.urgentUnits.join(', ') || 'Nenhuma'}`);
+        contextLines.push(`- SLA Médio de Conclusão: ${hk.summary.averageSlaCompletionMinutes} min (Padrão: ${hk.slaStandardMinutes} min)`);
+      }
     }
 
     if (operationalContext.guestIntelligence) {

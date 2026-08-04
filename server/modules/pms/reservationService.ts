@@ -12,6 +12,7 @@ import {
   ReservationFilterDTO, 
   ReservationStatus 
 } from './reservationTypes.ts';
+import { housekeepingService } from '../housekeeping/housekeepingService.ts';
 
 export class ReservationService {
   private reservationRepo: IReservationRepository;
@@ -241,8 +242,19 @@ export class ReservationService {
         throw new Error("Erro ao atualizar status da reserva durante o Check-out.");
       }
 
-      // Atualizar automaticamente a UH vinculada para 'dirty' (necessita de governança)
+      // Atualizar automaticamente a UH vinculada para 'dirty' e gerar tarefa de governança
       await this.roomRepo.updateUnitStatus(organizationId, propertyId, reservation.unitId, 'dirty');
+      
+      const unit = await this.roomRepo.findUnitById(organizationId, propertyId, reservation.unitId);
+      await housekeepingService.createTaskForCheckout(
+        organizationId,
+        propertyId,
+        reservation.unitId,
+        unit?.unitNumber || 'N/A',
+        reservationId,
+        reservation.guest?.guestId,
+        'high'
+      ).catch(err => console.warn('Erro ao gerar tarefa de governança no check-out:', err));
 
       return updated;
     });
