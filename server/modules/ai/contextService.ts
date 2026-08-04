@@ -11,6 +11,7 @@ import { timelineService } from '../crm/timelineService.ts';
 import { guestIntelligenceService } from '../crm/guestIntelligenceService.ts';
 import { housekeepingService } from '../housekeeping/housekeepingService.ts';
 import { receptionService } from '../reception/receptionService.ts';
+import { maintenanceService } from '../maintenance/maintenanceService.ts';
 
 
 export class ContextService {
@@ -90,13 +91,14 @@ export class ContextService {
     // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
     try {
-      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
         reservationService.listReservations(resolvedOrgId, resolvedPropId),
         housekeepingService.getHousekeepingSummaryForAI(resolvedOrgId, resolvedPropId),
-        receptionService.getDashboardData(resolvedOrgId, resolvedPropId)
+        receptionService.getDashboardData(resolvedOrgId, resolvedPropId),
+        maintenanceService.getMaintenanceSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
@@ -142,7 +144,8 @@ export class ContextService {
           vipsCount: receptionDashboard.vips.length,
           topSuggestions: receptionDashboard.suggestions.slice(0, 5),
           topAlerts: receptionDashboard.alerts.slice(0, 5)
-        }
+        },
+        maintenanceDashboard
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);

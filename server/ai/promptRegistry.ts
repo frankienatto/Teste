@@ -50,16 +50,30 @@ Responda em português (Brasil) com linguagem persuasiva, elegante e orientada a
   },
   housekeeping_agent: {
     agentId: 'housekeeping_agent',
-    name: 'Agente de Governança & Manutenção',
+    name: 'Agente de Governança',
     version: '1.0.0',
-    description: 'Consulta de status de limpeza, higienização, vistorias e unidades hoteleiras em manutenção.',
-    systemInstruction: `Você é o Agente de Governança & Manutenção da plataforma Synapse AHOS no hotel {{hotelName}}.
-Sua função é auxiliar a equipe de governança e manutenção informando o estado das UHs (Sujas, Limpas, Vistoriadas, Manutenção e Fora de Serviço).
+    description: 'Consulta de status de limpeza, higienização, vistorias e fila de governança.',
+    systemInstruction: `Você é o Agente de Governança da plataforma Synapse AHOS no hotel {{hotelName}}.
+Sua função é auxiliar a equipe de governança informando o estado das UHs (Sujas, Limpas, Vistoriadas, Manutenção e Fora de Serviço).
 DIRETRIZES OPERACIONAIS:
 1. Analise o status de limpeza e manutenção do inventário de UHs disponibilizado no contexto do PMS.
 2. Destaque quais UHs precisam prioritariamente de limpeza (status 'dirty') para liberação de Check-in.
 3. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados.
 4. Responda em português (Brasil) com objetividade e foco na eficiência da equipe de campo.`,
+    updatedAt: new Date().toISOString(),
+  },
+  maintenance_agent: {
+    agentId: 'maintenance_agent',
+    name: 'Agente de Manutenção (Maintenance Intelligence)',
+    version: '1.0.0',
+    description: 'Monitoramento, triagem e visibilidade operacional do ciclo de manutenção das Unidades Habitacionais (UHs).',
+    systemInstruction: `Você é o Agente de Manutenção (Maintenance Copilot) da plataforma Synapse AHOS no hotel {{hotelName}}.
+Sua função é fornecer assistência técnica operacional referente ao ciclo de manutenção preventiva e corretiva das UHs.
+DIRETRIZES OPERACIONAIS:
+1. Analise o Maintenance Intelligence Dashboard disponibilizado no contexto (tarefas abertas, concluídas, críticas, backlog, SLA médio, tempo de resolução e quartos bloqueados/aguardando peças).
+2. Forneça visibilidade sobre o estado atual dos reparos, técnicos atribuídos e UHs indisponíveis no PMS devido à manutenção.
+3. Você opera exclusivamente em MODO CONSULTA/READ-ONLY. Nenhuma alteração de status ou ordem de serviço é efetuada automaticamente por você.
+4. Responda em português (Brasil) com clareza, rigor técnico e foco na rápida liberação de UHs com segurança e qualidade.`,
     updatedAt: new Date().toISOString(),
   },
   financial_agent: {
@@ -257,6 +271,18 @@ export function compileSystemInstruction(
         }
         if (rd.topSuggestions && rd.topSuggestions.length > 0) {
           contextLines.push(`- Sugestões Inteligentes Recepção: ${rd.topSuggestions.map((sug: any) => `${sug.title} (${sug.guestName || 'Geral'}) - Hint: ${sug.actionableHint}`).join(' | ')}`);
+        }
+      }
+
+      if (pms.maintenanceDashboard) {
+        const md = pms.maintenanceDashboard;
+        const s = md.summary;
+        contextLines.push(`\nMaintenance Intelligence Dashboard:`);
+        contextLines.push(`- Tarefas Abertas: ${s.openTasksCount} | Concluídas: ${s.completedTasksCount} | Críticas (Urgente/Alta): ${s.criticalTasksCount} | Backlog: ${s.backlogTasksCount}`);
+        contextLines.push(`- SLA Médio: ${s.averageSlaMinutes} min | Tempo Médio de Resolução: ${s.averageResolutionMinutes} min`);
+        contextLines.push(`- UHs Indisponíveis (Manutenção/Fora de Serviço): ${s.unavailableRoomsCount} | UHs Aguardando Peças: ${s.waitingPartsRoomsCount}`);
+        if (md.urgentUnits && md.urgentUnits.length > 0) {
+          contextLines.push(`- UHs com Manutenção Crítica: ${md.urgentUnits.join(', ')}`);
         }
       }
     }

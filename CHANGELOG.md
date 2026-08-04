@@ -2,6 +2,19 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 7 - Etapa 7.3: Maintenance Intelligence] - 2026-08-03
+
+### Adicionado
+- **Módulo Maintenance Intelligence (`server/modules/maintenance/`)**:
+  - `maintenanceTypes.ts`: Interfaces de domínio (`MaintenanceTask`, `MaintenanceStatus`, `MaintenanceCategory`, `MaintenancePriority`, `MaintenanceDashboardSummary`, `MaintenanceHistory`, DTOs e filtros).
+  - `maintenanceRepository.ts`: Repositório com persistência em memória e isolamento multi-tenant (`organizationId`, `propertyId`).
+  - `maintenanceService.ts`: Serviço de manutenção com ciclo completo de estados (`reported` -> `triage` -> `assigned` -> `in_progress` -> `waiting_parts` -> `inspection` -> `completed` -> `closed` / `cancelled`). Bloqueio automático de UH no PMS (`status = 'maintenance'`) ao abrir/iniciar reparos e liberação automática no término. Publicação de eventos na Guest Timeline quando associado a hóspede.
+  - `maintenanceRouter.ts`: Endpoints REST (`GET /api/maintenance/tasks`, `POST /api/maintenance/tasks`, `PATCH /api/maintenance/tasks/:id`, `GET /api/maintenance/dashboard`, `GET /api/maintenance/history`).
+- **Integração com ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão da propriedade `maintenanceDashboard` no objeto `pmsData` para visibilidade operacional read-only dos agentes de IA.
+- **Atualização do Prompt Registry (`server/ai/promptRegistry.ts`)**:
+  - Registro/Atualização do agente `maintenance_agent` (v1.0.0) em MODO ESTRITAMENTE READ-ONLY e compilação do bloco `Maintenance Intelligence Dashboard` na função `compileSystemInstruction`.
+
 ## [Milestone 7 - Etapa 7.2: Reception Copilot] - 2026-08-03
 
 ### Adicionado
