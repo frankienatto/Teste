@@ -13,10 +13,14 @@ import { Reservation } from '../pms/reservationTypes.ts';
 import { RoomCategory, RoomUnit } from '../pms/pmsTypes.ts';
 
 export class RevenueService {
-  private repo: RevenueRepository;
+  private repo?: RevenueRepository;
 
-  constructor(repo: RevenueRepository = revenueRepository) {
+  constructor(repo?: RevenueRepository) {
     this.repo = repo;
+  }
+
+  private getRepo(): RevenueRepository {
+    return this.repo || revenueRepository;
   }
 
   // --- HELPERS DE DATA E FORMATAÇÃO ---
@@ -64,9 +68,9 @@ export class RevenueService {
    */
   async getDashboard(organizationId: string, propertyId: string): Promise<RevenueDashboard> {
     const [reservations, categories, units] = await Promise.all([
-      this.repo.getReservations(organizationId, propertyId),
-      this.repo.getCategories(organizationId, propertyId),
-      this.repo.getUnits(organizationId, propertyId)
+      this.getRepo().getReservations(organizationId, propertyId),
+      this.getRepo().getCategories(organizationId, propertyId),
+      this.getRepo().getUnits(organizationId, propertyId)
     ]);
 
     const activeUnits = units.filter(u => u.active);
@@ -109,8 +113,8 @@ export class RevenueService {
    */
   async getMetrics(organizationId: string, propertyId: string): Promise<RevenueMetrics> {
     const [reservations, units] = await Promise.all([
-      this.repo.getReservations(organizationId, propertyId),
-      this.repo.getUnits(organizationId, propertyId)
+      this.getRepo().getReservations(organizationId, propertyId),
+      this.getRepo().getUnits(organizationId, propertyId)
     ]);
     const totalUnitsCount = units.filter(u => u.active).length || 1;
     return this.calculateMetrics(reservations, totalUnitsCount);
@@ -121,8 +125,8 @@ export class RevenueService {
    */
   async getForecast(organizationId: string, propertyId: string, days = 30): Promise<ForecastDay[]> {
     const [reservations, units] = await Promise.all([
-      this.repo.getReservations(organizationId, propertyId),
-      this.repo.getUnits(organizationId, propertyId)
+      this.getRepo().getReservations(organizationId, propertyId),
+      this.getRepo().getUnits(organizationId, propertyId)
     ]);
     const totalUnitsCount = units.filter(u => u.active).length || 1;
     return this.calculateForecast(reservations, totalUnitsCount, days);
@@ -132,7 +136,7 @@ export class RevenueService {
    * Receita por Canal de Venda
    */
   async getChannels(organizationId: string, propertyId: string): Promise<ChannelRevenue[]> {
-    const reservations = await this.repo.getReservations(organizationId, propertyId);
+    const reservations = await this.getRepo().getReservations(organizationId, propertyId);
     return this.calculateRevenueByChannel(reservations);
   }
 
@@ -141,9 +145,9 @@ export class RevenueService {
    */
   async getCategories(organizationId: string, propertyId: string): Promise<CategoryRevenue[]> {
     const [reservations, categories, units] = await Promise.all([
-      this.repo.getReservations(organizationId, propertyId),
-      this.repo.getCategories(organizationId, propertyId),
-      this.repo.getUnits(organizationId, propertyId)
+      this.getRepo().getReservations(organizationId, propertyId),
+      this.getRepo().getCategories(organizationId, propertyId),
+      this.getRepo().getUnits(organizationId, propertyId)
     ]);
     return this.calculateRevenueByCategory(reservations, categories, units);
   }

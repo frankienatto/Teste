@@ -612,6 +612,254 @@
         }
       }
     },
+    "/direct-booking/dashboard": {
+      "get": {
+        "tags": ["Direct Booking & Commercial CRM"],
+        "summary": "Retorna o dashboard comercial com métricas do funil de vendas e propostas recentes",
+        "operationId": "getDirectBookingDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard comercial retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/direct-booking/metrics": {
+      "get": {
+        "tags": ["Direct Booking & Commercial CRM"],
+        "summary": "Retorna métricas consolidadas do funil comercial, conversão por canal e atendente",
+        "operationId": "getDirectBookingMetrics",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas comerciais retornadas com sucesso"
+          }
+        }
+      }
+    },
+    "/direct-booking/proposals": {
+      "get": {
+        "tags": ["Direct Booking & Commercial CRM"],
+        "summary": "Lista propostas comerciais ativas/históricas com filtro opcional por status",
+        "operationId": "listCommercialProposals",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filtro por status da proposta (sent, negotiating, accepted, expired, etc)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de propostas comerciais retornada com sucesso"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Direct Booking & Commercial CRM"],
+        "summary": "Cria uma nova proposta comercial (Cotação / Lead de Reserva Direta)",
+        "operationId": "createCommercialProposal",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "201": {
+            "description": "Proposta comercial criada com sucesso"
+          }
+        }
+      }
+    },
+    "/direct-booking/proposals/{proposalId}": {
+      "put": {
+        "tags": ["Direct Booking & Commercial CRM"],
+        "summary": "Atualiza o status ou condições de negociação de uma proposta comercial",
+        "operationId": "updateCommercialProposal",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "proposalId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Proposta comercial atualizada com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/dashboard": {
+      "get": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Retorna o dashboard do Sales CRM com métricas do funil, oportunidades em destaque e follow-ups",
+        "operationId": "getSalesDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard comercial retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/metrics": {
+      "get": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Retorna métricas consolidadas do pipeline de vendas, conversões por canal e por responsável",
+        "operationId": "getSalesMetrics",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas de vendas retornadas com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/opportunities": {
+      "get": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Lista oportunidades comerciais com filtros opcionais por estágio, responsável e temperatura",
+        "operationId": "listSalesOpportunities",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "stage",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "temperature",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de oportunidades comerciais retornada com sucesso"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Cadastra uma nova oportunidade comercial no pipeline",
+        "operationId": "createSalesOpportunity",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "201": {
+            "description": "Oportunidade comercial criada com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/opportunities/{id}": {
+      "get": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Obtém detalhes de uma oportunidade comercial por ID",
+        "operationId": "getSalesOpportunityById",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Oportunidade comercial retornada com sucesso"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Atualiza estágio, valor ou responsável de uma oportunidade comercial",
+        "operationId": "updateSalesOpportunity",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Oportunidade comercial atualizada com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/opportunities/{id}/interactions": {
+      "post": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Registra uma nova interação comercial (Ligação, WhatsApp, Email, Nota)",
+        "operationId": "addSalesInteraction",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Interação registrada com sucesso"
+          }
+        }
+      }
+    },
+    "/sales/opportunities/{id}/follow-up": {
+      "post": {
+        "tags": ["Sales CRM & Gestão do Pipeline Commercial"],
+        "summary": "Agenda ou atualiza o próximo follow-up da oportunidade",
+        "operationId": "scheduleSalesFollowUp",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Follow-up agendado com sucesso"
+          }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],

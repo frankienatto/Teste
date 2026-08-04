@@ -9,6 +9,16 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'sales_agent',
+      domain: 'Sales CRM & Gestão do Pipeline Comercial',
+      keywords: ['lead', 'pipeline', 'crm', 'vendas', 'negociação', 'negociacao', 'follow-up', 'followup', 'cliente', 'proposta', 'oportunidade', 'funil', 'score', 'prospecto']
+    },
+    {
+      agentId: 'direct_booking_agent',
+      domain: 'Reservas Diretas & CRM Comercial',
+      keywords: ['proposta', 'orçamento', 'orcamento', 'cotação', 'cotacao', 'venda', 'vendas', 'comercial', 'negociação', 'negociacao', 'conversão', 'conversao', 'follow-up', 'followup', 'reserva direta', 'desconto', 'oportunidade', 'lead', 'inquiry', 'proposta comercial']
+    },
+    {
       agentId: 'revenue_agent',
       domain: 'Revenue Intelligence & Performance Comercial',
       keywords: ['revenue', 'adr', 'revpar', 'ocupação', 'ocupacao', 'forecast', 'diária média', 'diaria media', 'receita por quarto', 'performance comercial', 'booking pace', 'pace', 'pickup', 'tarifa média', 'tarifa media', 'lead time']

@@ -65,8 +65,8 @@
 
 ### MILESTONE 9 — Commercial Operations & Revenue Intelligence [EM ANDAMENTO]
 - [x] **Etapa 9.1**: Revenue Intelligence Foundation (`server/modules/revenue/` contendo `revenueTypes.ts`, `revenueRepository.ts` consumindo exclusivamente `reservationService` e `pmsService`, `revenueService.ts` READ-ONLY calculando Ocupação Diária/Semanal/Mensal, ADR, RevPAR, LOS, Lead Time, Pickup, Booking Pace, Forecast 7/15/30 dias, Cancelamentos, No-Show e Ocupação por Dia da Semana, `revenueRouter.ts` com endpoints `/api/revenue/dashboard`, `/metrics`, `/forecast`, `/channels`, `/categories`, injeção de `revenueSummary` no `ContextService`, registro de `revenue_agent` no `PromptRegistry`, roteamento em `AgentRouter` e atualização no OpenAPI 3.0).
-- [ ] **Etapa 9.2**: Direct Booking Intelligence
-- [ ] **Etapa 9.3**: Sales CRM
+- [x] **Etapa 9.2**: Direct Booking Intelligence (`server/modules/directBooking/` com `directBookingTypes.ts`, `directBookingRepository.ts`, `directBookingService.ts` gerando orçamentos/cotações/propostas comerciais, acompanhamento de negociações, auto-expiração, taxa de conversão, tempo até fechamento, valor em aberto e perda potencial, `directBookingRouter.ts` com endpoints `/api/direct-booking/dashboard`, `/proposals`, `/metrics`, injeção de `directBookingSummary` no `ContextService`, agente `direct_booking_agent` READ-ONLY em `PromptRegistry`, roteamento em `AgentRouter` e OpenAPI 3.0).
+- [x] **Etapa 9.3**: Sales CRM (`server/modules/sales/` com `salesTypes.ts`, `salesRepository.ts`, `salesService.ts` gerenciando o pipeline comercial de ponta a ponta `lead -> inquiry -> opportunity -> proposal -> negotiation -> won -> lost`, lead scoring `cold/warm/hot`, origens multi-canal, histórico de interações, próximos follow-ups, `salesRouter.ts` com endpoints `/api/sales/dashboard`, `/metrics`, `/opportunities`, `/opportunities/:id/interactions`, `/opportunities/:id/follow-up`, injeção de `salesSummary` no `ContextService`, agente `sales_agent` READ-ONLY no `PromptRegistry`, roteamento em `AgentRouter` e OpenAPI 3.0).
 - [ ] **Etapa 9.4**: Marketing Intelligence
 
 ---
@@ -84,6 +84,6 @@
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
 - **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
 - **Milestone 8 (Etapas 8.1, 8.2, 8.3 e 8.4)**: 100% Concluído (Security Hardening + Observabilidade & Resiliência + Performance & Context Cache + Especificação OpenAPI 3.0 & Swagger UI).
-- **Milestone 9 (Etapa 9.1)**: 100% Concluído (Revenue Intelligence Foundation - Módulo READ-ONLY de cálculo de KPIs, Forecast, Booking Pace, Pickup, Canais, Categorias, `revenue_agent`, `ContextService` e OpenAPI 3.0).
+- **Milestone 9 (Etapas 9.1, 9.2 e 9.3)**: 100% Concluído (Revenue Intelligence Foundation, Commercial CRM & Direct Booking Intelligence e Sales CRM - Gestão do pipeline comercial de ponta a ponta, cotações/propostas, lead scoring, `sales_agent`, `ContextService` e OpenAPI 3.0).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

@@ -4,36 +4,44 @@ import { Reservation } from '../pms/reservationTypes.ts';
 import { RoomCategory, RoomUnit } from '../pms/pmsTypes.ts';
 
 export class RevenueRepository {
-  private resService: ReservationService;
-  private pmsSvc: PmsService;
+  private resService?: ReservationService;
+  private pmsSvc?: PmsService;
 
   constructor(
-    resService: ReservationService = reservationService,
-    pmsSvc: PmsService = pmsService
+    resService?: ReservationService,
+    pmsSvc?: PmsService
   ) {
     this.resService = resService;
     this.pmsSvc = pmsSvc;
+  }
+
+  private getResService(): ReservationService {
+    return this.resService || reservationService;
+  }
+
+  private getPmsService(): PmsService {
+    return this.pmsSvc || pmsService;
   }
 
   /**
    * Obtém lista de reservas via ReservationService
    */
   async getReservations(organizationId: string, propertyId: string): Promise<Reservation[]> {
-    return this.resService.listReservations(organizationId, propertyId);
+    return this.getResService().listReservations(organizationId, propertyId);
   }
 
   /**
    * Obtém categorias de acomodação via PmsService
    */
   async getCategories(organizationId: string, propertyId: string): Promise<RoomCategory[]> {
-    return this.pmsSvc.listCategories(organizationId, propertyId, true);
+    return this.getPmsService().listCategories(organizationId, propertyId, true);
   }
 
   /**
    * Obtém unidades hoteleiras (UHs) via PmsService
    */
   async getUnits(organizationId: string, propertyId: string): Promise<RoomUnit[]> {
-    return this.pmsSvc.listUnits(organizationId, propertyId);
+    return this.getPmsService().listUnits(organizationId, propertyId);
   }
 }
 

@@ -1,5 +1,7 @@
 import { GuestIntelligence } from '../crm/intelligenceTypes.ts';
 import { RevenueSummaryForAI } from '../revenue/revenueTypes.ts';
+import { DirectBookingSummaryForAI } from '../directBooking/directBookingTypes.ts';
+import { SalesSummaryForAI } from '../sales/salesTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -71,10 +73,14 @@ export interface OperationalContext {
     receptionDashboard?: any;
     maintenanceDashboard?: any;
     revenueSummary?: RevenueSummaryForAI | null;
+    directBookingSummary?: DirectBookingSummaryForAI | null;
+    salesSummary?: SalesSummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
   revenueSummary?: RevenueSummaryForAI | null;
+  directBookingSummary?: DirectBookingSummaryForAI | null;
+  salesSummary?: SalesSummaryForAI | null;
   metadata: Record<string, any>;
 }
 

@@ -2,6 +2,42 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 9 - Etapa 9.3: Sales CRM Intelligence Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Sales CRM (`server/modules/sales/`)**:
+  - `salesTypes.ts`: Interfaces para `SalesOpportunity`, `CommercialInteraction`, `NextFollowUp`, `SalesMetrics`, `SalesDashboard`, `SalesSummaryForAI` e DTOs de criação/atualização/agendamento.
+  - `salesRepository.ts`: Repositório Multi-Tenant e em memória com suporte ao funil comercial completo (`lead`, `inquiry`, `opportunity`, `proposal`, `negotiation`, `won`, `lost`, `cancelled`), lead scoring (`cold`, `warm`, `hot`), origens multi-canal e controle de interações e follow-ups.
+  - `salesService.ts`: Serviço de regras de negócio comerciais, cálculo de taxas de conversão, tempo médio de fechamento, valor total do pipeline e resumo enxuto para IA.
+  - `salesRouter.ts`: Endpoints REST padronizados (`GET /api/sales/dashboard`, `GET /api/sales/metrics`, `GET /api/sales/opportunities`, `GET /api/sales/opportunities/:id`, `POST /api/sales/opportunities`, `PUT /api/sales/opportunities/:id`, `POST /api/sales/opportunities/:id/interactions`, `POST /api/sales/opportunities/:id/follow-up`) protegidos por Rate Limiting e cabeçalhos Multi-Tenant.
+- **Injeção de Resumo de Vendas no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto enxuto `salesSummary` no `OperationalContext` (valor em pipeline, leads quentes, follow-ups atrasados, conversões e alertas) sem envio de listas completas.
+- **Agente de Sales CRM e Roteamento Determinístico (`sales_agent`)**:
+  - Registro do `sales_agent` em modo READ-ONLY no `PromptRegistry` (`server/ai/promptRegistry.ts`).
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com palavras-chave comerciais (`lead`, `pipeline`, `crm`, `vendas`, `negociação`, `follow-up`, `cliente`, `proposta`, `oportunidade`, `funil`).
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Sales CRM & Gestão do Pipeline Commercial` e de todas as rotas `/sales/*`.
+- **Suíte de Testes Automatizados (`server/modules/sales/salesService.test.ts`)**:
+  - Testes com 100% de cobertura para cálculo de métricas, ciclo de vida da oportunidade, interações, follow-ups, `sales_agent`, `ContextService` e `AgentRouter`.
+
+## [Milestone 9 - Etapa 9.2: Commercial CRM & Direct Booking Intelligence] - 2026-08-04
+
+### Adicionado
+- **Módulo Commercial CRM & Direct Booking Intelligence (`server/modules/directBooking/`)**:
+  - `directBookingTypes.ts`: Interfaces para `CommercialProposal`, `DirectBookingMetrics`, `DirectBookingDashboard`, `DirectBookingSummaryForAI` e DTOs de criação/atualização.
+  - `directBookingRepository.ts`: Repositório com suporte a Multi-Tenant e ciclo completo de vida de propostas comerciais (draft, sent, viewed, negotiating, accepted, rejected, expired).
+  - `directBookingService.ts`: Serviço comercial para cotações, orçamentos, cálculo de conversões, tempo médio de fechamento, valor em aberto e auto-expiração de propostas.
+  - `directBookingRouter.ts`: Endpoints REST padronizados (`GET /api/direct-booking/dashboard`, `GET /api/direct-booking/metrics`, `GET /api/direct-booking/proposals`, `POST /api/direct-booking/proposals`, `PUT /api/direct-booking/proposals/:proposalId`) protegidos com Rate Limiting e cabeçalhos Multi-Tenant.
+- **Injeção de Resumo Comercial no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto enxuto `directBookingSummary` no `OperationalContext` (propostas abertas, taxa de conversão, receita em potencial e alertas comerciais) sem exceder limites de contexto.
+- **Roteamento Determinístico e Agente de Reservas Diretas (`direct_booking_agent`)**:
+  - Registro de `direct_booking_agent` em modo READ-ONLY em `PromptRegistry` (`server/ai/promptRegistry.ts`).
+  - Adição de regras de roteamento determinístico em `AgentRouter` (`server/modules/ai/agentRouter.ts`) para `proposta`, `orçamento`, `cotação`, `vendas`, `negociação`, `follow-up`, `reserva direta` e `desconto`.
+- **Atualização da Especificação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Documentação dos endpoints `/direct-booking/*` e schemas de propostas comerciais.
+- **Suíte de Testes da Etapa 9.2 (`server/modules/directBooking/directBookingService.test.ts`)**:
+  - Testes cobrindo criação, atualização, auto-expiração, cálculo de conversões, roteamento, PromptRegistry e injeção no ContextService.
+
 ## [Milestone 9 - Etapa 9.1: Revenue Intelligence Foundation] - 2026-08-04
 
 ### Adicionado
