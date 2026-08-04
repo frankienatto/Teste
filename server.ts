@@ -20,6 +20,9 @@ import { housekeepingRouter } from "./server/modules/housekeeping/housekeepingRo
 import { receptionRouter } from "./server/modules/reception/receptionRouter.ts";
 import { maintenanceRouter } from "./server/modules/maintenance/maintenanceRouter.ts";
 import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
+import { env } from "./server/config/environment.ts";
+import { rateLimiters } from "./server/middlewares/rateLimitMiddleware.ts";
+import { promptGuardMiddleware } from "./server/middlewares/promptGuardMiddleware.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
 const originalConsoleError = console.error;
