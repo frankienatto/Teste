@@ -59,7 +59,7 @@
 
 ### MILESTONE 8 — Production Readiness & Hardening [EM ANDAMENTO]
 - [x] **Etapa 8.1**: Security Hardening (`validationMiddleware` com Zod para PMS, Reservas, Governança, Manutenção, CRM e IA; `environment.ts` com validação de variáveis críticas e parada segura em prod; `rateLimitMiddleware` com limites independentes para IA, REST, Webhooks, Health e Swagger; `promptGuardMiddleware` com inspeção de Prompt Injection, teto de payload de 100KB e proteção contra sobrescrita de System Instructions; configurações centralizadas `appConfig`, `securityConfig`, `rateLimitConfig`, `cacheConfig`, `aiConfig`).
-- [ ] **Etapa 8.2**: Observabilidade (Error Handler padronizado, Logger JSON Google Cloud Logging, Request ID/Correlation ID, Probes de Liveness/Readiness).
+- [x] **Etapa 8.2**: Observabilidade (`errorHandler.ts` padronizado sem stack em prod; `logger.ts` estruturado em JSON compatível com Google Cloud Logging e `AsyncLocalStorage`; `correlationMiddleware.ts` preservando/gerando `X-Request-ID` e `X-Correlation-ID`; `healthRouter.ts` com probes `/health/liveness` e `/health/readiness`).
 - [ ] **Etapa 8.3**: Performance (Cache TTL no ContextService com invalidação por eventos, Paginação, Métricas do Servidor).
 - [ ] **Etapa 8.4**: Documentação (Especificação OpenAPI 3.0 & Swagger UI).
 
@@ -69,6 +69,7 @@
 - **Build**: ✅ Aprovado
 - **Lint**: ✅ Aprovado
 - **Segurança**: Chaves e SDK do Gemini 100% isolados no servidor. Zod Validation, Environment Validator, Rate Limiters independentes e Prompt Injection Guard ativados.
+- **Observabilidade**: Respostas de erro padronizadas em JSON (`errorHandler.ts`), Logs estruturados compatíveis com Google Cloud Logging (`logger.ts`), Rastreabilidade E2E com `X-Request-ID` e `X-Correlation-ID` (`correlationMiddleware.ts`) e probes de Liveness/Readiness (`/health/liveness`, `/health/readiness`).
 - **Pipeline de IA**: Unificado via `aiOrchestrator` e `agentRouter` com proteção por `promptGuardMiddleware`.
 - **Arquitetura SaaS**: Multi-Tenant desacoplado com RBAC, Repository, Onboarding e Middlewares de responsabilidade única.
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
@@ -76,6 +77,6 @@
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
 - **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
-- **Milestone 8 (Etapa 8.1)**: Concluída com sucesso (Security Hardening).
+- **Milestone 8 (Etapas 8.1 e 8.2)**: Concluídas com sucesso (Security Hardening + Observabilidade & Resiliência).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

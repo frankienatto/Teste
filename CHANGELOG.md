@@ -2,6 +2,25 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 8 - Etapa 8.2: Observabilidade & Resiliência] - 2026-08-04
+
+### Adicionado
+- **Central Error Handler Middleware (`server/middlewares/errorHandler.ts`)**:
+  - Middleware global de tratamento de exceções com assinatura express de 4 parâmetros.
+  - Padronização de respostas de erro no formato estrito: `{ success: false, code, message, details, timestamp, requestId, correlationId }`.
+  - Tratamento estruturado de `AppError`, `ZodError`, falhas de parsing JSON e exceções não tratadas.
+  - Ocultação automática de stack traces em ambiente de produção (`NODE_ENV === 'production'`).
+- **Structured JSON Logger (`server/utils/logger.ts`)**:
+  - Logger estruturado no formato JSON nativamente compatível com Google Cloud Logging (`timestamp`, `severity`, `level`, `message`, `module`, `requestId`, `correlationId`, `organizationId`, `propertyId`, etc.).
+  - Contexto de requisição com propagação automática via `AsyncLocalStorage` (`runWithLogContext`).
+- **Request ID & Correlation ID Middleware (`server/middlewares/correlationMiddleware.ts`)**:
+  - Preservação ou geração automática de `X-Request-ID` e `X-Correlation-ID` com UUIDv4.
+  - Anexo nos cabeçalhos de resposta HTTP e propagação para o contexto de logs e chamadas downstream.
+  - Registro estruturado do ciclo de vida das requisições HTTP (`durationMs`, `statusCode`, `ip`, `userAgent`).
+- **Endpoints de Health Checks Probes (`server/routes/healthRouter.ts`)**:
+  - `GET /health/liveness`: Verificação de vitalidade do processo Node.js (uptime, timestamp e ambiente).
+  - `GET /health/readiness`: Verificação local de prontidão do sistema sem chamadas externas (carregamento de ambiente, orquestrador de IA, módulos SaaS e integração n8n).
+
 ## [Milestone 8 - Etapa 8.1: Security Hardening] - 2026-08-04
 
 ### Adicionado

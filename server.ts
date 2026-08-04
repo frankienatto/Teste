@@ -23,6 +23,10 @@ import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
 import { env } from "./server/config/environment.ts";
 import { rateLimiters } from "./server/middlewares/rateLimitMiddleware.ts";
 import { promptGuardMiddleware } from "./server/middlewares/promptGuardMiddleware.ts";
+import { correlationMiddleware } from "./server/middlewares/correlationMiddleware.ts";
+import { errorHandler } from "./server/middlewares/errorHandler.ts";
+import { healthRouter } from "./server/routes/healthRouter.ts";
+import { logger } from "./server/utils/logger.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
 const originalConsoleError = console.error;
@@ -422,6 +426,12 @@ async function startServer() {
   
   app.use(cors());
   app.use(express.json());
+
+  // Request ID & Correlation ID Middleware (Milestone 8)
+  app.use(correlationMiddleware);
+
+  // Health Checks Probes (/health/liveness, /health/readiness)
+  app.use('/health', healthRouter);
 
   // Security Hardening Middlewares (Milestone 8)
   app.use('/api/gemini', rateLimiters.ai, promptGuardMiddleware);
@@ -1216,6 +1226,9 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
     }
   });
 
+  // Central Error Handler Middleware (Milestone 8)
+  app.use(errorHandler);
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -1232,7 +1245,7 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    logger.info(`Server running on http://0.0.0.0:${PORT}`, { port: PORT, env: env.NODE_ENV });
   });
 }
 
