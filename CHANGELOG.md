@@ -2,6 +2,100 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 4 - Etapa 4.1: Núcleo do PMS - Inventário de Acomodações & UHs] - 2026-08-03
+
+### Adicionado
+- **Tipagem e Contratos do PMS (`server/modules/pms/pmsTypes.ts`)**:
+  - Definições estritas de `RoomCategory`, `RoomUnit`, `RoomStatus` (`clean`, `dirty`, `inspected`, `out_of_service`, `maintenance`), `BedType`, `CapacityConfig` e DTOs de mutação.
+- **Camada de Repositório Desacoplada (`server/modules/pms/roomRepository.ts`)**:
+  - Interface `IRoomRepository` e implementação concreta `InMemoryRoomRepository` com suporte nativo a tenant isolado por `organizationId` e `propertyId`.
+  - Carga inicial (seed) para o hotel dev `Forest House Beach`.
+- **Camada de Serviço e Regras de Negócio (`server/modules/pms/pmsService.ts`)**:
+  - Validações de duplicação de códigos de categoria e números de UHs dentro da mesma propriedade.
+  - Regras de consistência de capacidade e soft delete em cascata para categorias e UHs (`active: false`).
+  - Cálculo de métricas e inventário em tempo real (`getInventorySummary`).
+- **Controlador REST HTTP (`server/modules/pms/pmsRouter.ts`)**:
+  - Endpoints REST desacoplados sob `/api/pms/*` com respostas padronizadas `{ success: true, data: ... }`.
+
+### Modificado
+- **Ponto de Composição HTTP (`server.ts`)**:
+  - Registro e acoplamento do `pmsRouter` sem quebrar contratos existentes.
+
+## [Milestone 3 - Etapa 3.4: Validação End-to-End, Regressão e Encerramento do Milestone 3] - 2026-08-03
+
+### Adicionado
+- **Bateria de Testes End-to-End e Regressão**:
+  - Validação de isolamento de memória multi-tenant entre diferentes organizações.
+  - Testes de truncamento FIFO e limpeza automática da `SessionMemory` (limite configurável de mensagens).
+  - Teste de integração do orquestrador de IA (`aiOrchestrator`), roteador determinístico (`agentRouter`) e contexto desacoplado (`contextService`).
+- **Encerramento Oficial do Milestone 3**:
+  - Arquitetura de Memória Operacional, Contexto e Orquestração de IA validada com 100% de aprovação no Build e Lint.
+
+## [Milestone 3 - Etapa 3.3: Synapse Agent Router & Roteamento Determinístico] - 2026-08-03
+
+### Adicionado
+- **Roteador Determinístico de Agentes (`server/modules/ai/agentRouter.ts`)**:
+  - Novo módulo `AgentRouter` com regras explícitas e pontuação por correspondência de palavras-chave para os domínios de Recepção, Financeiro, Governança/Manutenção, Marketing e Copilot.
+  - Avaliação de nível de confiança (`HIGH`, `MEDIUM`, `FALLBACK`) com detalhamento das palavras-chave identificadas.
+
+### Modificado
+- **Tipos de IA (`server/modules/ai/aiTypes.ts`)**:
+  - Atualização da interface `AgentSelectionResult` para incluir confiança `MEDIUM` e array opcional `matchedKeywords`.
+- **Adaptador de Compatibilidade (`server/modules/ai/agentSelector.ts`)**:
+  - `AgentSelector` refatorado para delegar diretamente ao `AgentRouter`, preservando 100% da compatibilidade com código existente.
+- **Orquestrador de IA (`server/modules/ai/aiOrchestrator.ts`)**:
+  - Atualizado para utilizar o `AgentRouter` como ponto oficial de decisão de roteamento.
+
+## [Milestone 3 - Etapa 3.2: Orquestrador de IA e Integração de Memória/Contexto] - 2026-08-03
+
+### Adicionado
+- **Orquestrador Unificado de IA (`server/modules/ai/aiOrchestrator.ts`)**:
+  - Encapsulamento completo do fluxo de execução de IA: `AgentSelector` -> `ContextService` -> `SessionMemory` (User) -> `PromptRegistry` -> `@google/genai` -> `SessionMemory` (Assistant).
+  - Suporte a retries automáticos com backoff exponencial para `429/RESOURCE_EXHAUSTED` e fallbacks limpos.
+- **Endpoint Oficial do Copilot (`POST /api/ai/copilot`)**:
+  - Novo endpoint HTTP para requisições do Copilot operacional com suporte nativo a `sessionId`, `organizationId`, `propertyId` e `userId`.
+
+### Modificado
+- **Compilador de Prompts (`server/ai/promptRegistry.ts`)**:
+  - Atualizado para aceitar `OperationalContext` de forma totalmente pura, injetando metadados de tenant/propriedade/usuário no prompt sem consultar repositórios ou bancos.
+- **Ponto de Composição HTTP (`server.ts`)**:
+  - `runGeminiCoreExecution` refatorado para atuar como thin wrapper delegante para o `aiOrchestrator`.
+  - Inclusão do endpoint `/api/ai/copilot`.
+
+## [Milestone 3 - Etapa 3.1: Módulos Core de Memória e Contexto] - 2026-08-03
+
+### Adicionado
+- **Tipos de Memória e Contexto (`server/modules/ai/aiTypes.ts`)**:
+  - Definição da constante configurável `DEFAULT_SESSION_HISTORY_LIMIT` (10 mensagens).
+  - Interfaces `ChatMessage`, `SessionMemory`, `SessionMemoryRepository`, `OperationalContext` e `AgentSelectionResult`.
+- **Repositório de Memória de Sessão (`server/modules/ai/sessionMemory.ts`)**:
+  - Classe `InMemorySessionMemory` implementando a interface `SessionMemoryRepository`, permitindo troca futura para Firestore/Redis sem alterar chamadores.
+  - Truncamento automático mantendo o limite configurado das N últimas mensagens.
+- **Serviço de Contexto Operacional (`server/modules/ai/contextService.ts`)**:
+  - Leitura desacoplada de dados do Tenant via `organizationRepository` sem duplicação de lógica.
+  - Agregação do histórico recente mantendo responsabilidade estrita (retorna `OperationalContext` puro, sem interpolação de prompts).
+- **Seletor Determinístico de Agentes (`server/modules/ai/agentSelector.ts`)**:
+  - Mapeamento direto por agente explícito ou palavras-chave de intenção (recepção, financeiro, governança, marketing).
+  - Fallback estruturado para `synapse_copilot` com retorno contendo `agentId`, `reason` e `confidence` ('HIGH' | 'FALLBACK').
+
+
+## [Milestone 2 - Fundação SaaS Multi-Tenant] - 2026-08-03
+
+### Adicionado
+- **Estrutura de Módulos SaaS (`server/modules/saas/`)**:
+  - `saasTypes.ts`: Definição de tipos e interfaces para Organization, Property, SaaSUser, IntegrationConfig, RBAC e Onboarding.
+  - `organizationRepository.ts`: Camada de repositório e persistência com métodos CRUD isolados.
+  - `organizationService.ts`: Serviço de domínio de negócio para onboarding e gestão de organizações/propriedades/usuários.
+  - `integrationRegistry.ts`: Registro e gestão de metadados/status de integrações externas sem acoplamento de OAuth real.
+  - `saasRouter.ts`: Roteador Express isolado montado no `server.ts` como ponto de composição.
+- **Middlewares com Responsabilidade Única (`server/modules/saas/middlewares/`)**:
+  - `authMiddleware.ts`: Autenticação e identificação de usuário via headers (`x-user-id` / token).
+  - `tenantMiddleware.ts`: Resolução estrita de Tenant (`x-organization-id` / `x-tenant-id`) e Propriedade, com obrigatoriedade em produção e fallback de dev.
+  - `rbacMiddleware.ts`: Controle de acesso baseado em papéis (Roles) e permissões granulares (`requirePermission`, `requireRole`).
+- **Endpoint de Onboarding Completo (`POST /api/saas/onboarding`)**:
+  - Processamento atômico que cria `Organization`, `Property` e `Owner User` com IDs independentes.
+  - Retorno estruturado contendo `organization`, `property`, `owner`, `onboardingStatus` e `nextSteps`.
+
 ## [Milestone 1 - Consolidação] - 2026-08-03
 
 ### Alterado

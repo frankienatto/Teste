@@ -10,6 +10,9 @@ import { db as firestore, auth } from "./services/firebase.ts";
 import { collection, getDocs, setDoc, doc, query, where } from "firebase/firestore";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { compileSystemInstruction, getAllPrompts, getPrompt, updatePrompt } from "./server/ai/promptRegistry.ts";
+import { saasRouter } from "./server/modules/saas/saasRouter.ts";
+import { pmsRouter } from "./server/modules/pms/pmsRouter.ts";
+import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
 const originalConsoleError = console.error;
@@ -410,6 +413,9 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
+  // Registra módulo SaaS Multi-Tenant (Milestone 2)
+  app.use(saasRouter);
+
   // API routes
   app.get("/api/ical-proxy", async (req, res) => {
     const icalUrl = req.query.url as string;
@@ -600,59 +606,28 @@ interface GeminiCoreResult {
 }
 
 async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiCoreResult> {
-  const { agentId, prompt, schema, systemInstruction, context, modelName = "gemini-2.5-flash" } = params;
+  const { agentId, prompt, schema, systemInstruction, context, modelName = "gemini-3.6-flash" } = params;
 
-  // 1. Regra de mock customizado
+  // 1. Regra de mock customizado (preserva suporte aos mocks legados)
   const customMock = getCustomMockForPrompt(String(prompt || ""), schema);
   if (customMock) {
     return { data: customMock, source: "mock_rule" };
   }
 
-  // 2. Servidor sem GEMINI_API_KEY -> Fallback Inteligente
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn("⚠️ [Gemini Unified Pipeline] Servidor sem GEMINI_API_KEY. Gerando fallback mock.");
-    const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
-    return { data: fallbackObj, source: "fallback_mock" };
-  }
-
-  // 3. Instanciação do SDK com User-Agent
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: { headers: { 'User-Agent': 'synapse-ahos-server' } }
+  // 2. Delegar orquestração de IA para o aiOrchestrator
+  const result = await aiOrchestrator.execute({
+    prompt,
+    agentId,
+    schema,
+    systemInstruction,
+    context,
+    modelName
   });
 
-  // 4. Compilação da instrução do sistema via Prompt Registry
-  const fullInstruction = compileSystemInstruction(agentId, systemInstruction, context);
-
-  // 5. Execução com retry automático e backoff exponencial
-  const result = await withRetryServer(async () => {
-    return await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        systemInstruction: fullInstruction,
-        ...(schema ? { responseMimeType: "application/json", responseSchema: schema } : {})
-      }
-    });
-  });
-
-  const textResponse = result.text;
-  if (!textResponse) {
-    throw new Error("Resposta vazia retornada pelo modelo Gemini.");
-  }
-
-  let parsedData: any = textResponse;
-  if (schema || textResponse.trim().startsWith('{') || textResponse.trim().startsWith('[')) {
-    try {
-      parsedData = JSON.parse(textResponse.trim());
-    } catch (parseErr) {
-      if (schema) {
-        console.warn("⚠️ [Gemini Unified Pipeline] Falha no parse de JSON. Retornando texto original.");
-      }
-    }
-  }
-
-  return { data: parsedData, source: modelName };
+  return {
+    data: result.data,
+    source: result.source
+  };
 }
 
   // Prompt Registry Management Endpoints (Sprint 02)
@@ -728,6 +703,52 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
     }
   });
 
+  // Endpoint oficial do Copilot / Orquestrador com Memória de Sessão e Contexto Operacional (Milestone 3 - Etapa 3.2)
+  app.post("/api/ai/copilot", async (req, res) => {
+    const { prompt, agentId, sessionId, organizationId, propertyId, userId } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: "O parâmetro 'prompt' é obrigatório." });
+    }
+
+    try {
+      const result = await aiOrchestrator.execute({
+        prompt,
+        agentId,
+        sessionId,
+        organizationId,
+        propertyId,
+        userId
+      });
+
+      return res.status(200).json({
+        success: true,
+        text: result.text,
+        agentId: result.agentId,
+        reason: result.agentSelection.reason,
+        confidence: result.agentSelection.confidence,
+        sessionId: result.sessionId,
+        source: result.source,
+        operationalContext: {
+          organization: result.operationalContext.organization?.name,
+          property: result.operationalContext.property?.name,
+          user: result.operationalContext.user?.name
+        }
+      });
+    } catch (e: any) {
+      console.error("❌ [/api/ai/copilot] Erro na execução do orquestrador:", e?.message || e);
+      return res.status(500).json({
+        success: false,
+        error: "Falha na execução do Copilot IA.",
+        details: e?.message || "Unknown error"
+      });
+    }
+  });
+
+  // Módulos SaaS e PMS (Milestone 2 & Milestone 4)
+  app.use("/api/saas", saasRouter);
+  app.use("/api/pms", pmsRouter);
+
   // Legacy Endpoint - Redirecionado internamente para o Pipeline Unificado de IA (Milestone 1)
   app.post("/api/gemini/generateText", async (req, res) => {
     const { prompt, schema, systemInstruction } = req.body;
@@ -781,7 +802,7 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
         const { query } = req.body;
         
         const result = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
+            model: "gemini-3.6-flash",
             contents: query,
             config: {
                 systemInstruction: "Você é um consultor hoteleiro especialista. Analise e resuma de forma concisa as notícias e eventos locais com base na busca, e diga qual o impacto para a ocupação do hotel. Escreva em Português.",
@@ -826,7 +847,7 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
         });
         
         const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
+            model: 'gemini-3.1-flash-lite-image',
             contents: {
                 parts: [{ text: prompt }],
             },
@@ -869,7 +890,7 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
         const { base64Data } = req.body;
         
         const response = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
+            model: "gemini-3.6-flash",
             contents: {
                 parts: [
                     { inlineData: { data: base64Data, mimeType: "image/jpeg" } },

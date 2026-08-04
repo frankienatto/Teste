@@ -1,3 +1,5 @@
+import { OperationalContext } from '../modules/ai/aiTypes.ts';
+
 export interface PromptDefinition {
   agentId: string;
   name: string;
@@ -105,20 +107,44 @@ export function getAllPrompts(): PromptDefinition[] {
 
 /**
  * Compila a instrução de sistema final para um agente aplicando as variáveis de contexto enviadas.
+ * Função pura de compilação: não acessa banco de dados nem memória de sessão.
  */
-export function compileSystemInstruction(agentId?: string, customInstruction?: string, context?: Record<string, any>): string {
+export function compileSystemInstruction(
+  agentId?: string, 
+  customInstruction?: string, 
+  context?: Record<string, any>,
+  operationalContext?: OperationalContext
+): string {
   const definition = getPrompt(agentId || 'default_agent');
   const rawInstruction = customInstruction || definition.systemInstruction;
   
   const defaultVars = {
-    hotelName: 'Forest House Beach',
+    hotelName: operationalContext?.property?.name || operationalContext?.organization?.name || 'Forest House Beach',
     checkInTime: '14:00',
     checkOutTime: '12:00',
     hotelPolicies: 'Proibido fumar nos quartos. Horário de silêncio após as 22h.',
     ...(context || {})
   };
 
-  return interpolatePrompt(rawInstruction, defaultVars);
+  let compiled = interpolatePrompt(rawInstruction, defaultVars);
+
+  if (operationalContext) {
+    const contextLines: string[] = [];
+    contextLines.push('\n\n--- CONTEXTO OPERACIONAL DO TENANT ---');
+    if (operationalContext.organization) {
+      contextLines.push(`Organização: ${operationalContext.organization.name} (ID: ${operationalContext.organization.organizationId}, Plano: ${operationalContext.organization.plan})`);
+    }
+    if (operationalContext.property) {
+      contextLines.push(`Propriedade: ${operationalContext.property.name} (Tipo: ${operationalContext.property.type})`);
+    }
+    if (operationalContext.user) {
+      contextLines.push(`Operador: ${operationalContext.user.name} (Cargo: ${operationalContext.user.role})`);
+    }
+    contextLines.push('--- FIM DO CONTEXTO OPERACIONAL ---');
+    compiled += contextLines.join('\n');
+  }
+
+  return compiled;
 }
 
 /**
