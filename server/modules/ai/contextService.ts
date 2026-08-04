@@ -7,6 +7,7 @@ import { n8nService } from '../integration/n8nService.ts';
 import { icalService } from '../integration/ical/icalService.ts';
 import { googleCalendarService } from '../integration/gcal/googleCalendarService.ts';
 import { crmService } from '../crm/crmService.ts';
+import { timelineService } from '../crm/timelineService.ts';
 
 export class ContextService {
   /**
@@ -18,7 +19,8 @@ export class ContextService {
     organizationId: string,
     propertyId?: string,
     userId?: string,
-    sessionId?: string
+    sessionId?: string,
+    activeGuestId?: string
   ): Promise<OperationalContext> {
     const resolvedOrgId = organizationId || 'org_dev_default';
     const resolvedPropId = propertyId || 'prop_dev_default';
@@ -68,6 +70,11 @@ export class ContextService {
     const gcalSummary = googleCalendarService.getGCalSummary(resolvedOrgId, resolvedPropId);
     const crmMetrics = await crmService.getMetrics(resolvedOrgId);
 
+    // Resumo enxuto da Timeline do hóspede ativo (se informado)
+    const guestTimelineSummary = activeGuestId 
+      ? await timelineService.getTimelineSummaryForAI(activeGuestId)
+      : undefined;
+
     // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
     try {
@@ -110,7 +117,8 @@ export class ContextService {
           vipGuestsCount: crmMetrics.vipGuestsCount,
           frequentGuestsCount: crmMetrics.frequentGuestsCount,
           totalStaysRecorded: crmMetrics.totalStaysRecorded,
-          totalRevenueGenerated: crmMetrics.totalRevenueGenerated
+          totalRevenueGenerated: crmMetrics.totalRevenueGenerated,
+          activeGuestTimelineSummary: guestTimelineSummary
         }
       };
     } catch (err: any) {
@@ -132,4 +140,5 @@ export class ContextService {
 }
 
 export const contextService = new ContextService();
+
 

@@ -8,6 +8,7 @@ import {
   GuestClassification 
 } from './guestTypes.ts';
 import { guestRepository } from './guestRepository.ts';
+import { timelineService } from './timelineService.ts';
 
 export class CrmService {
   /**
@@ -46,7 +47,19 @@ export class CrmService {
       updatedAt: now
     };
 
-    return guestRepository.save(newGuest);
+    const savedGuest = await guestRepository.save(newGuest);
+
+    // Event-Driven Timeline: Registrar criação de cadastro
+    await timelineService.appendTimelineEvent(guestId, {
+      organizationId,
+      source: 'crm',
+      eventType: 'preference.updated',
+      title: 'Perfil de Hóspede Cadastrado',
+      description: `Cadastro inicial criado para ${savedGuest.fullName} (${savedGuest.email}).`,
+      metadata: { classification: savedGuest.classification, tags: savedGuest.tags }
+    });
+
+    return savedGuest;
   }
 
   /**
@@ -75,7 +88,19 @@ export class CrmService {
       updatedAt: now
     };
 
-    return guestRepository.save(updated);
+    const saved = await guestRepository.save(updated);
+
+    // Event-Driven Timeline: Registrar atualização de preferências/perfil
+    await timelineService.appendTimelineEvent(guestId, {
+      organizationId: saved.organizationId,
+      source: 'crm',
+      eventType: 'preference.updated',
+      title: 'Perfil/Preferências Atualizadas',
+      description: `Informações cadastrais ou preferências do hóspede foram atualizadas.`,
+      metadata: { preferences: saved.preferences, tags: saved.tags }
+    });
+
+    return saved;
   }
 
   /**
@@ -102,6 +127,19 @@ export class CrmService {
       throw new Error(`Erro ao registrar estadia no perfil do hóspede [${guestId}].`);
     }
 
+    // Event-Driven Timeline: Registrar evento de estadia concluída
+    await timelineService.appendTimelineEvent(guestId, {
+      organizationId: updatedGuest.organizationId,
+      propertyId: stay.propertyId,
+      source: 'pms',
+      eventType: 'reservation.checkout',
+      title: `Estadia Concluída - UH ${stay.unitNumber || 'N/A'}`,
+      description: `Estadia realizada no período ${stay.checkInDate} a ${stay.checkOutDate}. Valor acumulado: R$ ${stay.totalSpentAmount}`,
+      reservationId: stay.reservationId,
+      unitNumber: stay.unitNumber,
+      metadata: { bookingChannel: stay.bookingChannel, rating: stay.guestRating }
+    });
+
     // Recalcular classificação dinâmica (ex: frequent se >= 3 estadias, vip se >= 10 ou receita relevante)
     let newClassification: GuestClassification = updatedGuest.classification;
 
@@ -114,8 +152,19 @@ export class CrmService {
     }
 
     if (newClassification !== updatedGuest.classification) {
+      const oldClass = updatedGuest.classification;
       updatedGuest.classification = newClassification;
       await guestRepository.save(updatedGuest);
+
+      // Event-Driven Timeline: Registrar alteração de classificação
+      await timelineService.appendTimelineEvent(guestId, {
+        organizationId: updatedGuest.organizationId,
+        source: 'system',
+        eventType: 'classification.changed',
+        title: `Classificação Atualizada para ${newClassification.toUpperCase()}`,
+        description: `O hóspede foi promovido de '${oldClass}' para '${newClassification}' com base em ${updatedGuest.totalStaysCount} estadias e R$ ${updatedGuest.totalSpentAmount} em receita acumulada.`,
+        metadata: { oldClassification: oldClass, newClassification }
+      });
     }
 
     return updatedGuest;
@@ -158,3 +207,4 @@ export class CrmService {
 }
 
 export const crmService = new CrmService();
+

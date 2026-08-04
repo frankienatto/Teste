@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { crmService } from './crmService.ts';
+import { timelineService } from './timelineService.ts';
 import { CreateGuestDTO, UpdateGuestDTO, GuestQueryFilters } from './guestTypes.ts';
+import { AppendTimelineEventDTO } from './timelineTypes.ts';
 
 export const crmRouter = Router();
 
@@ -109,6 +111,28 @@ crmRouter.get('/guests/:guestId', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/crm/guests/:guestId/360
+ * Obter o Perfil 360° completo do hóspede (dados cadastrais + timeline inteira)
+ */
+crmRouter.get('/guests/:guestId/360', async (req: Request, res: Response) => {
+  try {
+    const guestId = String(req.params.guestId);
+    const profile360 = await timelineService.getGuest360Profile(guestId);
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      data: profile360
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Erro ao carregar Perfil 360° do hóspede.',
+      message: err?.message || err
+    });
+  }
+});
+
+/**
  * PUT /api/crm/guests/:guestId
  * Atualizar dados cadastrais ou preferências de um hóspede
  */
@@ -176,6 +200,78 @@ crmRouter.post('/guests/:guestId/stays', async (req: Request, res: Response) => 
 });
 
 /**
+ * POST /api/crm/guests/:guestId/timeline
+ * Publicar um novo evento na Timeline do hóspede (Event-Driven Endpoint)
+ */
+crmRouter.post('/guests/:guestId/timeline', async (req: Request, res: Response) => {
+  try {
+    const orgId = (req as any).organizationId;
+    const propId = (req as any).propertyId;
+    const guestId = String(req.params.guestId);
+
+    const { source, eventType, title, description, reservationId, unitId, unitNumber, metadata } = req.body;
+
+    if (!source || !eventType || !title) {
+      return res.status(400).json({
+        error: 'Payload inválido.',
+        message: 'Os campos [source], [eventType] e [title] são obrigatórios para registrar eventos na timeline.'
+      });
+    }
+
+    const dto: AppendTimelineEventDTO = {
+      organizationId: req.body.organizationId || orgId,
+      propertyId: req.body.propertyId || propId,
+      source,
+      eventType,
+      title,
+      description,
+      reservationId,
+      unitId,
+      unitNumber,
+      metadata
+    };
+
+    const event = await timelineService.appendTimelineEvent(guestId, dto);
+
+    return res.status(201).json({
+      status: 'SUCCESS',
+      data: event
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Erro ao publicar evento na Timeline do hóspede.',
+      message: err?.message || err
+    });
+  }
+});
+
+/**
+ * GET /api/crm/guests/:guestId/timeline
+ * Listar os eventos da Timeline de um hóspede
+ */
+crmRouter.get('/guests/:guestId/timeline', async (req: Request, res: Response) => {
+  try {
+    const guestId = String(req.params.guestId);
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+
+    const timeline = await timelineService.getTimeline(guestId, limit);
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      totalEvents: timeline.length,
+      data: timeline
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Erro ao consultar Timeline do hóspede.',
+      message: err?.message || err
+    });
+  }
+});
+
+/**
  * GET /api/crm/metrics
  * Métricas gerais consolidadas do CRM em nível de Organização
  */
@@ -196,3 +292,4 @@ crmRouter.get('/metrics', async (req: Request, res: Response) => {
     });
   }
 });
+

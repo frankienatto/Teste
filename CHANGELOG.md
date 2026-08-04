@@ -2,6 +2,18 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 6 - Etapa 6.2: Guest Timeline & Perfil 360°] - 2026-08-03
+
+### Adicionado
+- **Módulo Guest Timeline & Perfil 360° (`server/modules/crm/`)**:
+  - `timelineTypes.ts`: Tipos do domínio da Timeline (`TimelineEventSource`, `TimelineEventType`, `GuestTimelineEvent`, `AppendTimelineEventDTO`, `Guest360Profile`, `GuestTimelineSummary`).
+  - `timelineRepository.ts`: Repositório Event-Driven em memória com política de retenção FIFO configurável (máximo 200 eventos por hóspede).
+  - `timelineService.ts`: Serviço unificado para publicação Event-Driven via `appendTimelineEvent`, consulta de eventos, carregamento do Perfil 360° (`getGuest360Profile`) e geração de resumo enxuto para os Agentes de IA (`getTimelineSummaryForAI`).
+  - `crmService.ts`: Integração automática de eventos da Timeline no cadastro de hóspede, atualização de preferências, conclusão de estadias e alteração dinâmica de classificação.
+  - `crmRouter.ts`: Endpoints REST `POST /api/crm/guests/:guestId/timeline`, `GET /guests/:guestId/timeline` e `GET /guests/:guestId/360`.
+- **Enriquecimento Enxuto do ContextService para IA (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do campo `activeGuestTimelineSummary` no `guestCrm` do contexto operacional da IA (contendo os últimos 5 eventos, classificação do hóspede, preferências principais e alertas urgentes), sem sobrecarregar a janela de contexto.
+
 ## [Milestone 6 - Etapa 6.1: CRM Inteligente de Hóspedes (Guest CRM Foundation)] - 2026-08-03
 
 ### Adicionado
