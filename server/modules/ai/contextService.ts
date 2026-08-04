@@ -6,6 +6,7 @@ import { reservationService } from '../pms/reservationService.ts';
 import { n8nService } from '../integration/n8nService.ts';
 import { icalService } from '../integration/ical/icalService.ts';
 import { googleCalendarService } from '../integration/gcal/googleCalendarService.ts';
+import { crmService } from '../crm/crmService.ts';
 
 export class ContextService {
   /**
@@ -61,10 +62,11 @@ export class ContextService {
       ? await sessionMemory.getRecentMessages(sessionId) 
       : [];
 
-    // 5. Resumo da Integração n8n / Aloha PMS, iCal Universal & Google Calendar
+    // 5. Resumo da Integração n8n / Aloha PMS, iCal Universal, Google Calendar & Guest CRM
     const integrationSummary = n8nService.getIntegrationSummary(resolvedOrgId, resolvedPropId);
     const icalSummary = icalService.getICalSummary(resolvedOrgId, resolvedPropId);
     const gcalSummary = googleCalendarService.getGCalSummary(resolvedOrgId, resolvedPropId);
+    const crmMetrics = await crmService.getMetrics(resolvedOrgId);
 
     // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
@@ -102,6 +104,13 @@ export class ContextService {
           ...integrationSummary,
           icalFeed: icalSummary,
           googleCalendar: gcalSummary
+        },
+        guestCrm: {
+          totalGuests: crmMetrics.totalGuests,
+          vipGuestsCount: crmMetrics.vipGuestsCount,
+          frequentGuestsCount: crmMetrics.frequentGuestsCount,
+          totalStaysRecorded: crmMetrics.totalStaysRecorded,
+          totalRevenueGenerated: crmMetrics.totalRevenueGenerated
         }
       };
     } catch (err: any) {

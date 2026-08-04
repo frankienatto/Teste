@@ -15,6 +15,7 @@ import { pmsRouter } from "./server/modules/pms/pmsRouter.ts";
 import { n8nRouter } from "./server/modules/integration/n8nRouter.ts";
 import { icalRouter } from "./server/modules/integration/ical/icalRouter.ts";
 import { googleCalendarRouter } from "./server/modules/integration/gcal/googleCalendarRouter.ts";
+import { crmRouter } from "./server/modules/crm/crmRouter.ts";
 import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
@@ -748,12 +749,13 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
     }
   });
 
-  // Módulos SaaS, PMS, n8n, iCal Universal & Google Calendar (Milestones 2, 4 e 5)
+  // Módulos SaaS, PMS, n8n, iCal Universal, Google Calendar & CRM (Milestones 2, 4, 5 e 6)
   app.use("/api/saas", saasRouter);
   app.use("/api/pms", pmsRouter);
   app.use("/api/integration/n8n", n8nRouter);
   app.use("/api/integration/ical", icalRouter);
   app.use("/api/integration/google-calendar", googleCalendarRouter);
+  app.use("/api/crm", crmRouter);
 
   // Legacy Endpoint - Redirecionado internamente para o Pipeline Unificado de IA (Milestone 1)
   app.post("/api/gemini/generateText", async (req, res) => {

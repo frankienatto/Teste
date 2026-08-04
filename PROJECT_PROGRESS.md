@@ -43,6 +43,13 @@
 
 ---
 
+### MILESTONE 6 — CRM Inteligente, Regras de Fidelidade & Automação de Marketing [EM ANDAMENTO]
+- [x] **Etapa 6.1**: CRM Inteligente de Hóspedes - Guest CRM Foundation (`guestTypes`, `guestRepository`, `crmService`, `crmRouter`, perfil do hóspede unificado em nível de `Organization`, deduplicação automática por e-mail/documento, classificação dinâmica de hóspedes `standard` -> `frequent` -> `vip`, histórico de estadias multi-propriedade, métricas de receita acumulada e integração read-only com `ContextService`).
+- [ ] **Etapa 6.2**: Motor de Regras de Fidelidade & Pontuação de Engajamento.
+- [ ] **Etapa 6.3**: Segmentação de Clientes & Automações de Marketing (Email/WhatsApp via n8n).
+
+---
+
 ## Status Atual da Plataforma
 - **Build**: ✅ Aprovado
 - **Lint**: ✅ Aprovado
@@ -52,5 +59,6 @@
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
 - **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
+- **Milestone 6 (Etapa 6.1)**: 100% Concluído e validado com o módulo Guest CRM Foundation unificado em nível de `Organization`, deduplicação automática por e-mail/documento, histórico de estadias multi-propriedade, classificação dinâmica e suporte read-only no `ContextService` da IA.
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

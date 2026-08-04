@@ -2,6 +2,17 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 6 - Etapa 6.1: CRM Inteligente de Hóspedes (Guest CRM Foundation)] - 2026-08-03
+
+### Adicionado
+- **Módulo Guest CRM Foundation (`server/modules/crm/`)**:
+  - `guestTypes.ts`: Tipos e contratos do domínio CRM (`GuestProfile`, `GuestPreferences`, `GuestDocument`, `GuestStayRecord`, `GuestClassification`, `CreateGuestDTO`, `UpdateGuestDTO`, `GuestQueryFilters`, `GuestMetricsSummary`).
+  - `guestRepository.ts`: Repositório com suporte a busca avançada por e-mail, documento e tags, consolidando perfis em nível de `Organization`.
+  - `crmService.ts`: Serviço do CRM com deduplicação automática de contatos, elevação dinâmica de classificação (`standard` -> `frequent` -> `vip`), agregação de histórico de estadias em múltiplas propriedades da Organização e cálculo de receita acumulada.
+  - `crmRouter.ts`: Endpoints Express REST (`POST /api/crm/guests`, `GET /guests`, `GET /guests/:guestId`, `PUT /guests/:guestId`, `POST /guests/:guestId/stays`, `GET /metrics`).
+- **Enriquecimento do ContextService para Agentes de IA (`server/modules/ai/contextService.ts`)**:
+  - Exposição de `guestCrm` (métricas de total de hóspedes, VIPs, recorrentes, estadias acumuladas e receita total) em modo read-only para os Agentes de IA.
+
 ## [Milestone 5 - Etapa 5.3: Integração Google Calendar (via n8n)] - 2026-08-03
 
 ### Adicionado
