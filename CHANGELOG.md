@@ -2,6 +2,24 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 9 - Etapa 9.1: Revenue Intelligence Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Dedicado de Revenue Intelligence (`server/modules/revenue/`)**:
+  - `revenueTypes.ts`: Interfaces para KPIs comerciais, `RevenueDashboard`, `RevenueMetrics`, `ForecastDay`, `ChannelRevenue`, `CategoryRevenue`, `PropertyRevenue`, `WeekdayOccupancy` e `RevenueSummaryForAI`.
+  - `revenueRepository.ts`: Camada de agregação de dados consumindo exclusivamente `reservationService` e `pmsService`, garantindo o princípio da menor alteração e desacoplamento sem acesso direto aos repositórios de banco de dados.
+  - `revenueService.ts`: Motor analítico estritamente READ-ONLY para cálculo preciso de KPIs (Taxa de Ocupação Diária, Semanal e Mensal, ADR, RevPAR, LOS/Média de Permanência, Lead Time médio, Taxas de Cancelamento e No-Show, Pickup dos últimos 7 dias, Booking Pace e Forecast de Ocupação para 7, 15 e 30 dias).
+  - `revenueRouter.ts`: Endpoints REST padronizados (`GET /api/revenue/dashboard`, `GET /api/revenue/metrics`, `GET /api/revenue/forecast`, `GET /api/revenue/channels`, `GET /api/revenue/categories`) protegidos com isolamento Multi-Tenant e Rate Limiting.
+- **Injeção de Resumo Executivo no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto enxuto `revenueSummary` no `OperationalContext` (ocupação, ADR, RevPAR, forecast, canal principal, alertas e tendências) sem inflar prompts com tabelas brutas.
+- **Roteamento Determinístico e Prompt para `revenue_agent`**:
+  - Registro de `revenue_agent` em modo READ-ONLY em `PromptRegistry` (`server/ai/promptRegistry.ts`).
+  - Adição de regras determinísticas em `AgentRouter` (`server/modules/ai/agentRouter.ts`) para termos como `revenue`, `adr`, `revpar`, `ocupação`, `forecast`, `diária média`, `booking pace` e `pickup`.
+- **Atualização da Especificação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Documentação completa dos novos endpoints `/revenue/*` e schemas associados no Swagger UI.
+- **Suíte de Testes da Etapa 9.1 (`server/modules/revenue/revenueService.test.ts`)**:
+  - Testes cobrindo 100% dos KPIs de Revenue, Forecast, Canais, Categorias, Roteamento do `revenue_agent`, `PromptRegistry` e `ContextService`.
+
 ## [Milestone 8 - Etapa 8.4: OpenAPI, Swagger & API Documentation] - 2026-08-04
 
 ### Adicionado

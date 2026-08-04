@@ -1,4 +1,5 @@
 import { GuestIntelligence } from '../crm/intelligenceTypes.ts';
+import { RevenueSummaryForAI } from '../revenue/revenueTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -69,9 +70,11 @@ export interface OperationalContext {
     housekeeping?: any;
     receptionDashboard?: any;
     maintenanceDashboard?: any;
+    revenueSummary?: RevenueSummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
+  revenueSummary?: RevenueSummaryForAI | null;
   metadata: Record<string, any>;
 }
 

@@ -9,6 +9,11 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'revenue_agent',
+      domain: 'Revenue Intelligence & Performance Comercial',
+      keywords: ['revenue', 'adr', 'revpar', 'ocupação', 'ocupacao', 'forecast', 'diária média', 'diaria media', 'receita por quarto', 'performance comercial', 'booking pace', 'pace', 'pickup', 'tarifa média', 'tarifa media', 'lead time']
+    },
+    {
       agentId: 'reception_agent',
       domain: 'Recepção & Reservas',
       keywords: ['reserva', 'booking', 'checkin', 'check-in', 'checkout', 'check-out', 'hospede', 'hóspede', 'recepcao', 'recepção', 'tarifario', 'tarifário', 'quarto', 'apartamento', 'overbooking', 'no-show', 'noshow']

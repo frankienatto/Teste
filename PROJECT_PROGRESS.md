@@ -63,6 +63,12 @@
 - [x] **Etapa 8.3**: Performance, Context Cache & Runtime Metrics (`contextService.ts` com cache em memória TTL 5s por tenant e invalidação reativa em PMS, CRM, Governança, Manutenção e n8n; `pagination.ts` para paginação de timeline, históricos e logs; `metricsCollector.ts` e `metricsRouter.ts` para endpoint `GET /metrics` com métricas de servidor, cache, HTTP, IA e contagens locais).
 - [x] **Etapa 8.4**: Documentação (`server/docs/openapi.json` cobrindo 100% dos módulos do sistema com OpenAPI 3.0.3, Schemas reutilizáveis de componentes, suporte a autenticação JWT, cabeçalhos Multi-Tenant e rastreamento; `server/routes/docsRouter.ts` servindo Swagger UI interativo em `/api/docs` e especificação JSON em `/api/docs/openapi.json`).
 
+### MILESTONE 9 — Commercial Operations & Revenue Intelligence [EM ANDAMENTO]
+- [x] **Etapa 9.1**: Revenue Intelligence Foundation (`server/modules/revenue/` contendo `revenueTypes.ts`, `revenueRepository.ts` consumindo exclusivamente `reservationService` e `pmsService`, `revenueService.ts` READ-ONLY calculando Ocupação Diária/Semanal/Mensal, ADR, RevPAR, LOS, Lead Time, Pickup, Booking Pace, Forecast 7/15/30 dias, Cancelamentos, No-Show e Ocupação por Dia da Semana, `revenueRouter.ts` com endpoints `/api/revenue/dashboard`, `/metrics`, `/forecast`, `/channels`, `/categories`, injeção de `revenueSummary` no `ContextService`, registro de `revenue_agent` no `PromptRegistry`, roteamento em `AgentRouter` e atualização no OpenAPI 3.0).
+- [ ] **Etapa 9.2**: Direct Booking Intelligence
+- [ ] **Etapa 9.3**: Sales CRM
+- [ ] **Etapa 9.4**: Marketing Intelligence
+
 ---
 
 ## Status Atual da Plataforma
@@ -78,5 +84,6 @@
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
 - **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
 - **Milestone 8 (Etapas 8.1, 8.2, 8.3 e 8.4)**: 100% Concluído (Security Hardening + Observabilidade & Resiliência + Performance & Context Cache + Especificação OpenAPI 3.0 & Swagger UI).
+- **Milestone 9 (Etapa 9.1)**: 100% Concluído (Revenue Intelligence Foundation - Módulo READ-ONLY de cálculo de KPIs, Forecast, Booking Pace, Pickup, Canais, Categorias, `revenue_agent`, `ContextService` e OpenAPI 3.0).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

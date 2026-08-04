@@ -12,6 +12,7 @@ import { guestIntelligenceService } from '../crm/guestIntelligenceService.ts';
 import { housekeepingService } from '../housekeeping/housekeepingService.ts';
 import { receptionService } from '../reception/receptionService.ts';
 import { maintenanceService } from '../maintenance/maintenanceService.ts';
+import { revenueService } from '../revenue/revenueService.ts';
 import { cacheConfig } from '../../config/cacheConfig.ts';
 import { metricsCollector } from '../../utils/metricsCollector.ts';
 import { env } from '../../config/environment.ts';
@@ -135,16 +136,20 @@ export class ContextService {
 
     // 6. Integração com o PMS: Consulta via Services
     let pmsData = null;
+    let revenueSummary = null;
     try {
-      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
         reservationService.listReservations(resolvedOrgId, resolvedPropId),
         housekeepingService.getHousekeepingSummaryForAI(resolvedOrgId, resolvedPropId),
         receptionService.getDashboardData(resolvedOrgId, resolvedPropId),
-        maintenanceService.getMaintenanceSummaryForAI(resolvedOrgId, resolvedPropId)
+        maintenanceService.getMaintenanceSummaryForAI(resolvedOrgId, resolvedPropId),
+        revenueService.getRevenueSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
+
+      revenueSummary = revSummary;
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
       const occupiedUnitsCount = reservations.filter(r => r.status === 'checked_in').length;
@@ -190,7 +195,8 @@ export class ContextService {
           topSuggestions: receptionDashboard.suggestions.slice(0, 5),
           topAlerts: receptionDashboard.alerts.slice(0, 5)
         },
-        maintenanceDashboard
+        maintenanceDashboard,
+        revenueSummary
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);
@@ -203,6 +209,7 @@ export class ContextService {
       pmsData,
       sessionHistory,
       guestIntelligence,
+      revenueSummary,
       metadata: {
         timestamp: new Date().toISOString(),
         resolvedFrom: 'pmsService_reservationService_and_n8nService'

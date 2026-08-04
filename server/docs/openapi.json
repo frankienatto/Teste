@@ -526,6 +526,92 @@
         }
       }
     },
+    "/revenue/dashboard": {
+      "get": {
+        "tags": ["Revenue Intelligence"],
+        "summary": "Retorna o Dashboard completo de Revenue Intelligence (ADR, RevPAR, Ocupação, Forecast e Canais)",
+        "operationId": "getRevenueDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard de Revenue retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/revenue/metrics": {
+      "get": {
+        "tags": ["Revenue Intelligence"],
+        "summary": "Retorna os KPIs e métricas comerciais consolidados (ADR, RevPAR, Lead Time, Pickup, Pace)",
+        "operationId": "getRevenueMetrics",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas consolidadas de Revenue retornadas com sucesso"
+          }
+        }
+      }
+    },
+    "/revenue/forecast": {
+      "get": {
+        "tags": ["Revenue Intelligence"],
+        "summary": "Retorna a projeção e forecast de ocupação e faturamento (7, 15, 30 dias)",
+        "operationId": "getRevenueForecast",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" },
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Número de dias para a projeção do forecast (padrão 30)",
+            "schema": { "type": "integer", "default": 30 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projeção de ocupação calculada com sucesso"
+          }
+        }
+      }
+    },
+    "/revenue/channels": {
+      "get": {
+        "tags": ["Revenue Intelligence"],
+        "summary": "Retorna a distribuição de receita e ADR por canal de venda",
+        "operationId": "getRevenueChannels",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receita por canais de venda retornada com sucesso"
+          }
+        }
+      }
+    },
+    "/revenue/categories": {
+      "get": {
+        "tags": ["Revenue Intelligence"],
+        "summary": "Retorna o desempenho comercial e RevPAR por categoria de acomodação",
+        "operationId": "getRevenueCategories",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receita por categorias de acomodação retornada com sucesso"
+          }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],
