@@ -14,7 +14,14 @@ import {
     MarketInsight, AIPackageSuggestion, AIConciergeMessage
 } from '../types';
 
-import { GoogleGenAI, Type } from "@google/genai";
+export const Type = {
+    STRING: 'STRING',
+    NUMBER: 'NUMBER',
+    INTEGER: 'INTEGER',
+    BOOLEAN: 'BOOLEAN',
+    ARRAY: 'ARRAY',
+    OBJECT: 'OBJECT'
+} as const;
 
 const geminiCache: Record<string, { data: any, timestamp: number }> = {};
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour
@@ -972,3 +979,61 @@ export const generateDynamicPriceSuggestions = (db: DBState, period: string, mar
         }
     });
 };
+
+// --- Agent Execution Endpoint Call (Sprint 01 & Sprint 02) ---
+export const callGeminiAgent = async (agentId: string, prompt: string, schema?: any, systemInstruction?: string, context?: Record<string, any>): Promise<any> => {
+    try {
+        const response = await fetch('/api/gemini/agent-execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId, prompt, schema, systemInstruction, context })
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        const result = await response.json();
+        return result.data ?? result;
+    } catch (err: any) {
+        console.error(`Error executing agent ${agentId}:`, err);
+        return null;
+    }
+};
+
+// --- Prompt Registry API Interaction Helpers (Sprint 02) ---
+export const getPromptRegistryList = async () => {
+    try {
+        const res = await fetch('/api/prompts');
+        const json = await res.json();
+        return json.prompts || [];
+    } catch (e) {
+        console.error('Error fetching prompts from registry:', e);
+        return [];
+    }
+};
+
+export const getPromptRegistryByAgent = async (agentId: string) => {
+    try {
+        const res = await fetch(`/api/prompts/${agentId}`);
+        const json = await res.json();
+        return json.prompt || null;
+    } catch (e) {
+        console.error(`Error fetching prompt for agent ${agentId}:`, e);
+        return null;
+    }
+};
+
+export const updatePromptRegistry = async (agentId: string, systemInstruction: string, name?: string, description?: string) => {
+    try {
+        const res = await fetch('/api/prompts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId, systemInstruction, name, description })
+        });
+        const json = await res.json();
+        return json.prompt || null;
+    } catch (e) {
+        console.error('Error updating prompt in registry:', e);
+        return null;
+    }
+};
+

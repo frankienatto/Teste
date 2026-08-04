@@ -9,6 +9,7 @@ import { GoogleGenAI } from "@google/genai";
 import { db as firestore, auth } from "./services/firebase.ts";
 import { collection, getDocs, setDoc, doc, query, where } from "firebase/firestore";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { compileSystemInstruction, getAllPrompts, getPrompt, updatePrompt } from "./server/ai/promptRegistry.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
 const originalConsoleError = console.error;
@@ -553,53 +554,211 @@ function getCustomMockForPrompt(promptStr: string, schema: any): any {
   return null;
 }
 
-  // Gemini API Proxy
+// Server-side retry helper with exponential backoff for rate limits (HTTP 429) and transient errors
+const sleepServer = (ms: number) => new Promise(res => setTimeout(res, ms));
+async function withRetryServer<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      const errorMsg = String(error?.message || error || "");
+      if (errorMsg.includes('429') || errorMsg.includes('RESOURCE_EXHAUSTED') || errorMsg.includes('UNAVAILABLE')) {
+        const backoffMs = Math.pow(2, i) * 1000 + Math.floor(Math.random() * 500);
+        console.warn(`⚠️ [Gemini RateLimit] Tentativa ${i + 1}/${retries} aguardando ${backoffMs}ms...`);
+        await sleepServer(backoffMs);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
+
+/**
+ * PIPELINE UNIFICADO DE EXECUÇÃO DE IA (Milestone 1 - Consolidação)
+ * Núcleo central do backend para processamento de requisições de IA.
+ * Reúne:
+ * - Resolução de prompts pelo Prompt Registry
+ * - Estratégia de retries com backoff exponencial (HTTP 429 / erros transientes)
+ * - Mocks baseados em regras e Fallbacks graciosos sem API Key
+ * - Execução unificada via @google/genai SDK
+ */
+interface GeminiCoreParams {
+  agentId?: string;
+  prompt: string;
+  schema?: any;
+  systemInstruction?: string;
+  context?: Record<string, any>;
+  modelName?: string;
+}
+
+interface GeminiCoreResult {
+  data: any;
+  source: string;
+}
+
+async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiCoreResult> {
+  const { agentId, prompt, schema, systemInstruction, context, modelName = "gemini-2.5-flash" } = params;
+
+  // 1. Regra de mock customizado
+  const customMock = getCustomMockForPrompt(String(prompt || ""), schema);
+  if (customMock) {
+    return { data: customMock, source: "mock_rule" };
+  }
+
+  // 2. Servidor sem GEMINI_API_KEY -> Fallback Inteligente
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn("⚠️ [Gemini Unified Pipeline] Servidor sem GEMINI_API_KEY. Gerando fallback mock.");
+    const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
+    return { data: fallbackObj, source: "fallback_mock" };
+  }
+
+  // 3. Instanciação do SDK com User-Agent
+  const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+    httpOptions: { headers: { 'User-Agent': 'synapse-ahos-server' } }
+  });
+
+  // 4. Compilação da instrução do sistema via Prompt Registry
+  const fullInstruction = compileSystemInstruction(agentId, systemInstruction, context);
+
+  // 5. Execução com retry automático e backoff exponencial
+  const result = await withRetryServer(async () => {
+    return await ai.models.generateContent({
+      model: modelName,
+      contents: prompt,
+      config: {
+        systemInstruction: fullInstruction,
+        ...(schema ? { responseMimeType: "application/json", responseSchema: schema } : {})
+      }
+    });
+  });
+
+  const textResponse = result.text;
+  if (!textResponse) {
+    throw new Error("Resposta vazia retornada pelo modelo Gemini.");
+  }
+
+  let parsedData: any = textResponse;
+  if (schema || textResponse.trim().startsWith('{') || textResponse.trim().startsWith('[')) {
+    try {
+      parsedData = JSON.parse(textResponse.trim());
+    } catch (parseErr) {
+      if (schema) {
+        console.warn("⚠️ [Gemini Unified Pipeline] Falha no parse de JSON. Retornando texto original.");
+      }
+    }
+  }
+
+  return { data: parsedData, source: modelName };
+}
+
+  // Prompt Registry Management Endpoints (Sprint 02)
+  app.get("/api/prompts", (req, res) => {
+    return res.status(200).json({
+      success: true,
+      prompts: getAllPrompts()
+    });
+  });
+
+  app.get("/api/prompts/:agentId", (req, res) => {
+    const { agentId } = req.params;
+    const promptDef = getPrompt(agentId);
+    return res.status(200).json({
+      success: true,
+      prompt: promptDef
+    });
+  });
+
+  app.post("/api/prompts", (req, res) => {
+    const { agentId, systemInstruction, name, description } = req.body;
+    if (!agentId || !systemInstruction) {
+      return res.status(400).json({ error: "Os parâmetros 'agentId' e 'systemInstruction' são obrigatórios." });
+    }
+
+    const updated = updatePrompt(agentId, systemInstruction, name, description);
+    return res.status(200).json({
+      success: true,
+      prompt: updated
+    });
+  });
+
+  // Gemini API Proxy - Agent Execution Endpoint (Sprint 01 & 02 - Server-Side Execution & Prompt Registry)
+  app.post("/api/gemini/agent-execute", async (req, res) => {
+    const { agentId, prompt, schema, systemInstruction, context } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: "O parâmetro 'prompt' é obrigatório." });
+    }
+
+    try {
+      const execution = await runGeminiCoreExecution({
+        agentId,
+        prompt,
+        schema,
+        systemInstruction,
+        context
+      });
+
+      return res.status(200).json({
+        success: true,
+        agentId: agentId || "default_agent",
+        data: execution.data,
+        source: execution.source
+      });
+    } catch (e: any) {
+      console.error(`❌ [agent-execute] Erro no pipeline de IA (${agentId}):`, e?.message || e);
+      try {
+        const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
+        return res.status(200).json({
+          success: true,
+          agentId: agentId || "default_agent",
+          data: fallbackObj,
+          source: "error_fallback_mock"
+        });
+      } catch (fallbackErr) {
+        return res.status(500).json({
+          success: false,
+          error: "Falha ao processar execução do agente de IA no servidor.",
+          details: e?.message || "Unknown error"
+        });
+      }
+    }
+  });
+
+  // Legacy Endpoint - Redirecionado internamente para o Pipeline Unificado de IA (Milestone 1)
   app.post("/api/gemini/generateText", async (req, res) => {
     const { prompt, schema, systemInstruction } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: "O parâmetro 'prompt' é obrigatório." });
+    }
+
     try {
+      const execution = await runGeminiCoreExecution({
+        agentId: "synapse_orchestrator",
+        prompt,
+        schema,
+        systemInstruction
+      });
+
+      return res.status(200).json(execution.data);
+    } catch (e: any) {
+      console.warn("⚠️ [Gemini Fallback] (generateText) - Fallback ativado no pipeline unificado.");
+      try {
         const customMock = getCustomMockForPrompt(String(prompt || ""), schema);
         if (customMock) {
-            return res.status(200).json(customMock);
+          return res.status(200).json(customMock);
         }
 
-        if (!process.env.GEMINI_API_KEY) {
-            console.warn("⚠️ Servidor sem chave GEMINI_API_KEY. Usando Mock Fallback Inteligente.");
-            const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
-            return res.status(200).json(fallbackObj);
-        }
-        const ai = new GoogleGenAI({
-            apiKey: process.env.GEMINI_API_KEY,
-            httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-        });
-        
-        const result = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
-            contents: prompt,
-            config: {
-                systemInstruction: systemInstruction || "Você é Synapse, o cérebro de IA de um sistema hoteleiro.",
-                responseMimeType: "application/json",
-                responseSchema: schema,
-            }
-        });
-        
-        if (!result.text) {
-             throw new Error("Empty response from Gemini");
-        }
-        res.status(200).json(JSON.parse(result.text.trim()));
-    } catch (e: any) {
-        console.warn("⚠️ [Gemini Fallback] (generateText) - Fallback inteligente ativado.");
-        try {
-            const customMock = getCustomMockForPrompt(String(prompt || ""), schema);
-            if (customMock) {
-                return res.status(200).json(customMock);
-            }
-
-            const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
-            res.status(200).json(fallbackObj);
-        } catch (fallbackErr: any) {
-            console.warn("Critical: Falha ao gerar fallback.");
-            res.status(500).json({ fallback: true, success: false });
-        }
+        const fallbackObj = generateMockFromSchema(schema, String(prompt || ""));
+        return res.status(200).json(fallbackObj);
+      } catch (fallbackErr: any) {
+        console.warn("Critical: Falha ao gerar fallback.");
+        return res.status(500).json({ fallback: true, success: false });
+      }
     }
   });
 
@@ -773,11 +932,6 @@ function getCustomMockForPrompt(promptStr: string, schema: any): any {
             bookingData = parseBookingWithHeuristics(rawText);
         } else {
             try {
-                const ai = new GoogleGenAI({
-                    apiKey: process.env.GEMINI_API_KEY,
-                    httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
-                });
-
                 // AI Schema to parse unstructured email notifications into typed variables
                 const alohaProSyncSchema: any = {
                     type: "OBJECT",
@@ -797,22 +951,15 @@ function getCustomMockForPrompt(promptStr: string, schema: any): any {
                     required: ["guestName", "checkIn", "checkOut", "otaSource"]
                 };
 
-                const result = await ai.models.generateContent({
-                    model: "gemini-3.5-flash",
-                    contents: `Analise as informações desta atualização ou e-mail de reserva: \n"${rawText}"`,
-                    config: {
-                        systemInstruction: "Você é Synapse, o assistente inteligente da Forest House. Extraia com precisão todos os campos da reserva contidos na mensagem/email. Escreva datas em formato ISO YYYY-MM-DD. Identifique se a reserva é para a unidade 'beach' (Forest House Beach) ou 'sanctuary' (Forest House Santuário). Identifique a origem: 'Airbnb', 'Booking.com', 'Expedia', 'Hostelworld' ou 'Plataforma Própria'.",
-                        responseMimeType: "application/json",
-                        responseSchema: alohaProSyncSchema,
-                    }
+                const execution = await runGeminiCoreExecution({
+                    agentId: "synapse_orchestrator",
+                    prompt: `Analise as informações desta atualização ou e-mail de reserva: \n"${rawText}"`,
+                    schema: alohaProSyncSchema,
+                    systemInstruction: "Você é Synapse, o assistente inteligente da Forest House. Extraia com precisão todos os campos da reserva contidos na mensagem/email. Escreva datas em formato ISO YYYY-MM-DD. Identifique se a reserva é para a unidade 'beach' (Forest House Beach) ou 'sanctuary' (Forest House Santuário). Identifique a origem: 'Airbnb', 'Booking.com', 'Expedia', 'Hostelworld' ou 'Plataforma Própria'."
                 });
 
-                if (!result.text) {
-                    throw new Error("Não foi possível estruturar os dados com a IA do Gemini (resposta vazia).");
-                }
-
-                bookingData = JSON.parse(result.text.trim());
-                console.log("✨ Parsed Booking via Gemini AI:", bookingData);
+                bookingData = execution.data;
+                console.log("✨ Parsed Booking via Gemini AI Pipeline:", bookingData);
             } catch (geminiError: any) {
                 console.warn("⚠️ Gemini AI falhou ou rejeitou a chamada de API. Usando fallback baseado em Regex/Heurística.", geminiError.message);
                 isFallback = true;
