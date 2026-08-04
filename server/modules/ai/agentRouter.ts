@@ -9,6 +9,11 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'marketing_agent',
+      domain: 'Marketing Intelligence & Segmentação',
+      keywords: ['marketing', 'campanha', 'segmentação', 'segmentacao', 'retenção', 'retencao', 'cliente', 'engajamento', 'mercado', 'perfil', 'recorrência', 'recorrencia', 'ltv', 'journey', 'segmento', 'hóspede inativo', 'hospede inativo', 'vip inativo']
+    },
+    {
       agentId: 'sales_agent',
       domain: 'Sales CRM & Gestão do Pipeline Comercial',
       keywords: ['lead', 'pipeline', 'crm', 'vendas', 'negociação', 'negociacao', 'follow-up', 'followup', 'cliente', 'proposta', 'oportunidade', 'funil', 'score', 'prospecto']

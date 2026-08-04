@@ -2,6 +2,24 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 9 - Etapa 9.4: Marketing Intelligence Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Marketing Intelligence (`server/modules/marketing/`)**:
+  - `marketingTypes.ts`: Interfaces para `MarketingSegmentSummary`, `CustomerJourneyMetrics`, `MarketGeographicInsight`, `ChannelPerformance`, `MarketingRetentionAnalysis`, `MarketingAlert`, `MarketingDashboard` e `MarketingSummaryForAI`.
+  - `marketingRepository.ts`: Repositório Multi-Tenant READ-ONLY que agrega dados do CRM, Sales CRM, Direct Booking e ReservationService do Aloha PMS. Calcula segmentação inteligente (VIP, Recorrentes, Primeira Estadia, Corporate, Long Stay, Famílias, Casais, Internacionais, Blacklist, Aniversariantes, Inativos), Customer Journey, perfil geográfico, canais e retenção.
+  - `marketingService.ts`: Serviço de inteligência analítica de marketing 100% READ-ONLY, oferecendo visões do dashboard, segmentos, jornada, mercados, canais, retenção/LTV e resumo enxuto para IA.
+  - `marketingRouter.ts`: Endpoints REST padronizados (`GET /api/marketing/dashboard`, `GET /api/marketing/segments`, `GET /api/marketing/journey`, `GET /api/marketing/markets`, `GET /api/marketing/channels`, `GET /api/marketing/retention`) protegidos por Rate Limiting.
+- **Injeção de Resumo de Marketing no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto enxuto `marketingSummary` no `OperationalContext` (Top Segmentos, Top Mercados, Taxa de Retenção, Recorrência, LTV estimado e alertas) sem envio de listas extensas.
+- **Agente de Marketing e Roteamento Determinístico (`marketing_agent`)**:
+  - Registro do `marketing_agent` em modo estritamente READ-ONLY no `PromptRegistry` (`server/ai/promptRegistry.ts`) com diretrizes explícitas proibindo envio de campanhas ou alterações externas.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com palavras-chave de marketing (`marketing`, `campanha`, `segmentação`, `retenção`, `cliente`, `engajamento`, `mercado`, `perfil`, `recorrência`, `ltv`, `journey`).
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Marketing Intelligence & Segmentação` e de todas as rotas `/marketing/*`.
+- **Suíte de Testes Automatizados (`server/modules/marketing/marketingService.test.ts`)**:
+  - Testes com 100% de cobertura para cálculo do dashboard, segmentos, jornada do cliente, retenção, LTV, `marketing_agent`, `ContextService` e `AgentRouter`.
+
 ## [Milestone 9 - Etapa 9.3: Sales CRM Intelligence Foundation] - 2026-08-04
 
 ### Adicionado

@@ -15,6 +15,7 @@ import { maintenanceService } from '../maintenance/maintenanceService.ts';
 import { revenueService } from '../revenue/revenueService.ts';
 import { directBookingService } from '../directBooking/directBookingService.ts';
 import { salesService } from '../sales/salesService.ts';
+import { marketingService } from '../marketing/marketingService.ts';
 import { cacheConfig } from '../../config/cacheConfig.ts';
 import { metricsCollector } from '../../utils/metricsCollector.ts';
 import { env } from '../../config/environment.ts';
@@ -141,8 +142,9 @@ export class ContextService {
     let revenueSummary = null;
     let directBookingSummary = null;
     let salesSummary = null;
+    let marketingSummary = null;
     try {
-      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum, mktSum] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
@@ -152,12 +154,14 @@ export class ContextService {
         maintenanceService.getMaintenanceSummaryForAI(resolvedOrgId, resolvedPropId),
         revenueService.getRevenueSummaryForAI(resolvedOrgId, resolvedPropId),
         directBookingService.getDirectBookingSummaryForAI(resolvedOrgId, resolvedPropId),
-        salesService.getSalesSummaryForAI(resolvedOrgId, resolvedPropId)
+        salesService.getSalesSummaryForAI(resolvedOrgId, resolvedPropId),
+        marketingService.getMarketingSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
 
       revenueSummary = revSummary;
       directBookingSummary = directBookingSum;
       salesSummary = salesSum;
+      marketingSummary = mktSum;
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
       const occupiedUnitsCount = reservations.filter(r => r.status === 'checked_in').length;
@@ -206,7 +210,8 @@ export class ContextService {
         maintenanceDashboard,
         revenueSummary,
         directBookingSummary,
-        salesSummary
+        salesSummary,
+        marketingSummary
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);
@@ -222,6 +227,7 @@ export class ContextService {
       revenueSummary,
       directBookingSummary,
       salesSummary,
+      marketingSummary,
       metadata: {
         timestamp: new Date().toISOString(),
         resolvedFrom: 'pmsService_reservationService_and_n8nService'

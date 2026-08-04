@@ -860,6 +860,102 @@
         }
       }
     },
+    "/marketing/dashboard": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna o painel consolidado de Marketing Intelligence com segmentos, jornada, retenção e mercados",
+        "operationId": "getMarketingDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard de Marketing Intelligence retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/marketing/segments": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna os segmentos inteligentes de público e métricas de LTV por perfil",
+        "operationId": "getMarketingSegments",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Segmentos de marketing retornados com sucesso"
+          }
+        }
+      }
+    },
+    "/marketing/journey": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna as métricas e taxas de conversão da jornada do cliente (Customer Journey)",
+        "operationId": "getMarketingCustomerJourney",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Métricas da jornada do cliente retornadas com sucesso"
+          }
+        }
+      }
+    },
+    "/marketing/markets": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna dados geográficos de mercado, países, estados e idiomas predominantes",
+        "operationId": "getMarketingMarkets",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mercados geográficos retornados com sucesso"
+          }
+        }
+      }
+    },
+    "/marketing/channels": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna o desempenho de conversão e receita por canal de marketing",
+        "operationId": "getMarketingChannels",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Desempenho de canais de marketing retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/marketing/retention": {
+      "get": {
+        "tags": ["Marketing Intelligence & Segmentação"],
+        "summary": "Retorna análises de retenção, taxa de recorrentes, LTV médio e acomodações preferidas",
+        "operationId": "getMarketingRetention",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Análises de retenção e recorrência retornadas com sucesso"
+          }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],
