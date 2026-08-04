@@ -27,6 +27,11 @@ export class AgentRouter {
       agentId: 'marketing_agent',
       domain: 'Marketing & Vendas',
       keywords: ['marketing', 'vendas', 'campanha', 'promocao', 'promoção', 'redes sociais', 'instagram', 'cupom', 'mkt', 'fidelidade', 'conversion', 'tarifaria']
+    },
+    {
+      agentId: 'concierge_agent',
+      domain: 'Concierge & Experiência do Hóspede',
+      keywords: ['concierge', 'experiências', 'experiencias', 'restaurantes', 'restaurante', 'passeios', 'passeio', 'aniversário', 'aniversario', 'lua de mel', 'transporte', 'transfer', 'turismo']
     }
   ];
 

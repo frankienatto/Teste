@@ -43,10 +43,10 @@
 
 ---
 
-### MILESTONE 6 — CRM Inteligente, Regras de Fidelidade & Automação de Marketing [EM ANDAMENTO]
+### MILESTONE 6 — CRM Inteligente, Regras de Fidelidade & Automação de Marketing [CONCLUÍDO]
 - [x] **Etapa 6.1**: CRM Inteligente de Hóspedes - Guest CRM Foundation (`guestTypes`, `guestRepository`, `crmService`, `crmRouter`, perfil do hóspede unificado em nível de `Organization`, deduplicação automática por e-mail/documento, classificação dinâmica de hóspedes `standard` -> `frequent` -> `vip`, histórico de estadias multi-propriedade, métricas de receita acumulada e integração read-only com `ContextService`).
 - [x] **Etapa 6.2**: Guest Timeline & Perfil 360° (`timelineTypes`, `timelineRepository`, `timelineService`, `crmRouter`, publicação de eventos Event-Driven via `appendTimelineEvent`, origens explícitas `pms`, `crm`, `n8n`, `aloha`, `google_calendar`, `ical`, `ai_agent`, `user`, `system`, metadata flexível `Record<string, unknown>`, Perfil 360° completo `Guest360Profile`, retenção FIFO com teto de 200 eventos por hóspede e resumo enxuto no `ContextService` para IA).
-- [ ] **Etapa 6.3**: Segmentação de Clientes & Automações de Marketing (Email/WhatsApp via n8n).
+- [x] **Etapa 6.3**: Guest Intelligence & Concierge AI (`intelligenceTypes`, `guestIntelligenceService`, `crmRouter`, cálculo automático de `profileSummary`, `engagementScore` 0-100, `recurrenceLevel`, `averageSpendPerStay`, `averageStayDays`, `topPreferences`, `operationalAlerts`, `conciergeSuggestions`, integração com `ContextService`, atualização do `PromptRegistry` para `reception_agent`, `concierge_agent` e `marketing_agent`, roteamento determinístico por palavras-chave em `agentRouter` e endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`).
 
 ---
 
@@ -59,6 +59,6 @@
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
 - **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
-- **Milestone 6 (Etapas 6.1 e 6.2)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, retenção FIFO de 200 eventos por hóspede, publicação Event-Driven com origens explícitas, endpoints REST `/api/crm/guests/:guestId/360` e `/api/crm/guests/:guestId/timeline` e resumo enxuto no `ContextService` da IA.
+- **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

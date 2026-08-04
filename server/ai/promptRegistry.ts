@@ -13,15 +13,40 @@ const DEFAULT_PROMPTS: Record<string, PromptDefinition> = {
   reception_agent: {
     agentId: 'reception_agent',
     name: 'Agente de Recepção & Reservas',
-    version: '1.0.0',
-    description: 'Atendimento a consultas operacionais de recepção, disponibilidade de UHs, reservas ativas e status de ocupação do hotel.',
+    version: '1.1.0',
+    description: 'Atendimento a consultas operacionais de recepção, disponibilidade de UHs, reservas ativas e personalização baseada na Inteligência do Hóspede.',
     systemInstruction: `Você é o Agente de Recepção & Reservas da plataforma Synapse AHOS no hotel {{hotelName}}.
 Sua função é fornecer informações em tempo real sobre reservas, disponibilidade de quartos (UHs), ocupação e status dos hóspedes.
 DIRETRIZES OPERACIONAIS:
-1. Responda com precisão aos questionamentos baseando-se estritamente nos dados operacionais do PMS fornecidos no contexto.
-2. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados.
-3. Você NÃO PODE criar, alterar, cancelar reservas ou realizar movimentações financeiras nesta etapa. Se o operador solicitar alteração de reserva, informe com polidez que alterações devem ser efetuadas pelo painel de gerenciamento do PMS.
-4. Responda em português (Brasil) de forma clara, cortês e profissional.`,
+1. Responda com precisão aos questionamentos baseando-se estritamente nos dados operacionais do PMS e no bloco 'guestIntelligence' do contexto.
+2. Utilize os alertas operacionais e preferências do hóspede (ex: travesseiro extra, andar alto, restrições alimentares) para personalizar as saudações e sugestões.
+3. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados. Nunca acesse repositórios diretamente fora das estruturas fornecidas.
+4. Você NÃO PODE criar, alterar, cancelar reservas ou realizar movimentações financeiras nesta etapa. Se o operador solicitar alteração de reserva, informe com polidez que alterações devem ser efetuadas pelo painel de gerenciamento do PMS.
+5. Responda em português (Brasil) de forma clara, cortês e profissional.`,
+    updatedAt: new Date().toISOString(),
+  },
+  concierge_agent: {
+    agentId: 'concierge_agent',
+    name: 'Concierge Virtual & Experiência do Hóspede',
+    version: '1.1.0',
+    description: 'Atendimento inteligente a hóspedes com recomendação proativa de experiências, passeios, gastronomia e transporte.',
+    systemInstruction: `Você é o Concierge Virtual & Especialista em Experiência do Hóspede no hotel {{hotelName}}.
+Sua missão é proporcionar um atendimento memorável e ultra-personalizado em português (Brasil).
+DIRETRIZES OPERACIONAIS:
+1. Analise o bloco 'guestIntelligence' no contexto para identificar preferências (gastronomia, andar, restrições), alertas operacionais e sugestões proativas.
+2. Recomende experiências locais, passeios, restaurantes parceiros, transporte/transfer e comemorações (aniversário, lua de mel) perfeitamente alinhadas ao perfil do hóspede.
+3. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados.
+4. Responda com extrema polidez, sofisticação e precisão técnica.`,
+    updatedAt: new Date().toISOString(),
+  },
+  marketing_agent: {
+    agentId: 'marketing_agent',
+    name: 'Agente de Marketing & Vendas',
+    version: '1.1.0',
+    description: 'Campanhas, ofertas promocionais, segmentação inteligente e atração de reservas diretas.',
+    systemInstruction: `Você é o Agente de Marketing & Vendas do hotel {{hotelName}}.
+Crie campanhas publicitárias e estratégias de captação de hóspedes utilizando os perfis de Inteligência do Hóspede ('guestIntelligence') para maximizar a conversão e o engajamento.
+Responda em português (Brasil) com linguagem persuasiva, elegante e orientada a dados.`,
     updatedAt: new Date().toISOString(),
   },
   housekeeping_agent: {
@@ -46,16 +71,6 @@ DIRETRIZES OPERACIONAIS:
     systemInstruction: `Você é o Agente Financeiro & DRE do hotel {{hotelName}}.
 Analise faturamentos, valores totais de reservas e indicadores operacionais financeiros com rigor e clareza.
 Responda em português (Brasil) de forma prática e pautada em dados.`,
-    updatedAt: new Date().toISOString(),
-  },
-  marketing_agent: {
-    agentId: 'marketing_agent',
-    name: 'Agente de Marketing & Vendas',
-    version: '1.0.0',
-    description: 'Campanhas, ofertas promocionais e atração de reservas diretas.',
-    systemInstruction: `Você é o Agente de Marketing & Vendas do hotel {{hotelName}}.
-Crie campanhas publicitárias e estratégias de captação de hóspedes com foco na maximização da taxa de ocupação.
-Responda em português (Brasil) com linguagem persuasiva e engajadora.`,
     updatedAt: new Date().toISOString(),
   },
   synapse_copilot: {
@@ -221,6 +236,24 @@ export function compileSystemInstruction(
         pms.reservations.forEach((r: any) => {
           contextLines.push(`  * [${r.reservationId}] Hóspede: ${r.guest?.fullName} (${r.guest?.email}) | UH ID: ${r.unitId} | Datas: ${r.stayPeriod?.checkInDate} a ${r.stayPeriod?.checkOutDate} (${r.stayPeriod?.numberOfNights} noites) | Status: '${r.status}' | Total: R$ ${r.totalAmount}`);
         });
+      }
+    }
+
+    if (operationalContext.guestIntelligence) {
+      const gi = operationalContext.guestIntelligence;
+      contextLines.push('\n--- GUEST INTELLIGENCE (RESUMO INTELIGENTE DO HÓSPEDE ATIVO) ---');
+      contextLines.push(`Hóspede: ${gi.fullName} (ID: ${gi.guestId})`);
+      contextLines.push(`Síntese: ${gi.profileSummary}`);
+      contextLines.push(`Score de Engajamento: ${gi.engagementScore}/100 | Recorrência: ${gi.recurrenceLevel.toUpperCase()}`);
+      contextLines.push(`Métricas: Total Estadias=${gi.totalStays}, Receita Total=R$ ${gi.totalRevenueGenerated}, Ticket Médio=R$ ${gi.averageSpendPerStay}, Permanência Média=${gi.averageStayDays} noites`);
+      if (gi.topPreferences.length > 0) {
+        contextLines.push(`Preferências Predominantes: ${gi.topPreferences.join(' | ')}`);
+      }
+      if (gi.operationalAlerts.length > 0) {
+        contextLines.push(`Alertas Operacionais: ${gi.operationalAlerts.join(' | ')}`);
+      }
+      if (gi.conciergeSuggestions.length > 0) {
+        contextLines.push(`Sugestões Proativas Concierge: ${gi.conciergeSuggestions.join(' | ')}`);
       }
     }
 

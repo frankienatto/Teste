@@ -1,4 +1,7 @@
+import { GuestIntelligence } from '../crm/intelligenceTypes.ts';
+
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
+
 
 export interface ChatMessage {
   id: string;
@@ -63,6 +66,7 @@ export interface OperationalContext {
     };
   } | null;
   sessionHistory: ChatMessage[];
+  guestIntelligence?: GuestIntelligence | null;
   metadata: Record<string, any>;
 }
 

@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { crmService } from './crmService.ts';
 import { timelineService } from './timelineService.ts';
+import { guestIntelligenceService } from './guestIntelligenceService.ts';
+
 import { CreateGuestDTO, UpdateGuestDTO, GuestQueryFilters } from './guestTypes.ts';
 import { AppendTimelineEventDTO } from './timelineTypes.ts';
 
@@ -127,6 +129,50 @@ crmRouter.get('/guests/:guestId/360', async (req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(500).json({
       error: 'Erro ao carregar Perfil 360° do hóspede.',
+      message: err?.message || err
+    });
+  }
+});
+
+/**
+ * GET /api/crm/guests/:guestId/intelligence
+ * Obter a Inteligência do Hóspede calculada automaticamente (Read-Only)
+ */
+crmRouter.get('/guests/:guestId/intelligence', async (req: Request, res: Response) => {
+  try {
+    const guestId = String(req.params.guestId);
+    const intelligence = await guestIntelligenceService.calculateGuestIntelligence(guestId);
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      data: intelligence
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Erro ao calcular inteligência do hóspede.',
+      message: err?.message || err
+    });
+  }
+});
+
+/**
+ * GET /api/crm/guests/:guestId/summary
+ * Obter o Resumo Inteligente enxuto do Hóspede (Read-Only)
+ */
+crmRouter.get('/guests/:guestId/summary', async (req: Request, res: Response) => {
+  try {
+    const guestId = String(req.params.guestId);
+    const summary = await guestIntelligenceService.getGuestSummary(guestId);
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      data: summary
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      error: 'Erro ao obter resumo inteligente do hóspede.',
       message: err?.message || err
     });
   }

@@ -8,6 +8,8 @@ import { icalService } from '../integration/ical/icalService.ts';
 import { googleCalendarService } from '../integration/gcal/googleCalendarService.ts';
 import { crmService } from '../crm/crmService.ts';
 import { timelineService } from '../crm/timelineService.ts';
+import { guestIntelligenceService } from '../crm/guestIntelligenceService.ts';
+
 
 export class ContextService {
   /**
@@ -70,10 +72,18 @@ export class ContextService {
     const gcalSummary = googleCalendarService.getGCalSummary(resolvedOrgId, resolvedPropId);
     const crmMetrics = await crmService.getMetrics(resolvedOrgId);
 
-    // Resumo enxuto da Timeline do hóspede ativo (se informado)
-    const guestTimelineSummary = activeGuestId 
-      ? await timelineService.getTimelineSummaryForAI(activeGuestId)
-      : undefined;
+    // Resumo enxuto da Timeline e Inteligência do hóspede ativo (se informado)
+    let guestTimelineSummary = undefined;
+    let guestIntelligence = null;
+    if (activeGuestId) {
+      guestTimelineSummary = await timelineService.getTimelineSummaryForAI(activeGuestId);
+      try {
+        guestIntelligence = await guestIntelligenceService.calculateGuestIntelligence(activeGuestId);
+      } catch (err: any) {
+        console.warn(`⚠️ [ContextService] Erro ao calcular inteligência do hóspede [${activeGuestId}]:`, err?.message || err);
+      }
+    }
+
 
     // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
@@ -131,6 +141,7 @@ export class ContextService {
       user,
       pmsData,
       sessionHistory,
+      guestIntelligence,
       metadata: {
         timestamp: new Date().toISOString(),
         resolvedFrom: 'pmsService_reservationService_and_n8nService'

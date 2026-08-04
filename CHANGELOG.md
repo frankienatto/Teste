@@ -2,6 +2,23 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 6 - Etapa 6.3: Guest Intelligence & Concierge AI] - 2026-08-03
+
+### Adicionado
+- **Módulo Guest Intelligence (`server/modules/crm/`)**:
+  - `intelligenceTypes.ts`: Tipos do domínio de Inteligência (`GuestIntelligence`, `GuestSummary`, `RecurrenceLevel`).
+  - `guestIntelligenceService.ts`: Serviço que calcula automaticamente `profileSummary`, `engagementScore` (faixa 0 a 100), `recurrenceLevel` ('new' | 'occasional' | 'frequent' | 'champion'), `averageSpendPerStay`, `averageStayDays`, `topPreferences`, `operationalAlerts` e `conciergeSuggestions` sem side-effects.
+- **Integração com o ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do campo `guestIntelligence` no `OperationalContext`, transmitindo um resumo sintetizado e inteligente quando o `activeGuestId` é fornecido, sem expor históricos brutos.
+- **Atualização do Prompt Registry (`server/ai/promptRegistry.ts`)**:
+  - Atualização dos prompts dos agentes `reception_agent`, `marketing_agent` e criação/atualização do `concierge_agent` para consumir o resumo de `guestIntelligence` e personalizar o atendimento proativamente.
+- **Roteamento Determinístico do Concierge (`server/modules/ai/agentRouter.ts`)**:
+  - Adição de regra determinística para `concierge_agent` baseada em palavras-chave do universo de concierge (`concierge`, `experiências`, `restaurantes`, `passeios`, `aniversário`, `lua de mel`, `transporte`, `transfer`, `turismo`).
+- **Endpoints REST Read-Only (`server/modules/crm/crmRouter.ts`)**:
+  - `GET /api/crm/guests/:guestId/intelligence` (retorna objeto completo de inteligência do hóspede).
+  - `GET /api/crm/guests/:guestId/summary` (retorna resumo enxuto).
+
+
 ## [Milestone 6 - Etapa 6.2: Guest Timeline & Perfil 360°] - 2026-08-03
 
 ### Adicionado
