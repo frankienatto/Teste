@@ -2,6 +2,42 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 11 - Etapa 11.2: Operational Planning & Playbook Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Operational Planning & Playbook (`server/modules/planning/`)**:
+  - `planningTypes.ts`: Schemas e interfaces do domínio para `PlaybookStatus` (`planned`, `in_manual_execution`, `completed_manually`, `cancelled`, `blocked`), `PriorityLevel`, `ResponsibleArea`, `ChecklistItem`, `OperationalPlaybook`, `PlanningDashboard` e `PlanningSummaryForAI`.
+  - `planningRepository.ts`: Repositório Multi-Tenant de planejamento operacional. Transforma recomendações aprovadas em playbooks operacionais em MODO EXCLUSIVAMENTE MANUAL (`executionMode: 'manual'`, `status: 'planned'`), estruturando checklists de instrução humana para o Aloha PMS, responsáveis recomendados, complexidade estimada e dependências críticas sem acesso direto a banco de dados.
+  - `planningService.ts`: Serviço orquestrador que provê o dashboard de planejamento operacional, lista de playbooks manuais ativos, métodos `generate` e `rebuild` em memória e sumário sintético para IA (`planningSummary`).
+  - `planningRouter.ts`: Endpoints REST padronizados (`GET /api/planning/dashboard`, `GET /api/planning/playbooks`, `GET /api/planning/summary`, `POST /api/planning/generate`, `POST /api/planning/rebuild`) alterando unicamente a estrutura interna de playbooks no Synapse, com total garantia de não execução operacional externa (sem escrita no PMS, sem alteração de tarifas/reservas, sem envios de e-mail/WhatsApp/SMS/PIX/Stripe/ERP).
+- **Injeção do Resumo de Planejamento no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto sintético `planningSummary` no `OperationalContext` fornecendo contagem de ações planejadas (`plannedActions`), planos de alta prioridade (`highPriorityPlans`), horas estimadas de execução (`estimatedExecutionHours`), dependências críticas (`criticalDependencies`) e playbook principal (`topPlaybook`).
+- **Agente Especialista em Planejamento Operacional (`planning_agent`) e Roteamento Determinístico**:
+  - Registro do `planning_agent` em `PromptRegistry` (`server/ai/promptRegistry.ts`) em MODO CONSULTA / READ-ONLY para esclarecer playbooks operacionais, priorização por setor, sequenciamento e checklists manuais.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com regras determinísticas para palavras-chave: `plano`, `playbook`, `planejamento`, `sequência`, `cronograma`, `prioridade`, `checklist`, `execução`, `roadmap operacional`.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Operational Planning & Playbook Foundation` e especificação detalhada das rotas `/api/planning/*`.
+- **Suíte de Testes Automatizados (`server/modules/planning/planningService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard do módulo, playbooks em modo exclusivamente manual, métodos `generate` e `rebuild`, `planningSummary` no `ContextService`, `planning_agent` READ-ONLY no `PromptRegistry`, `AgentRouter` e documentação OpenAPI.
+
+## [Milestone 11 - Etapa 11.1: Human Approval Workflow & Audit Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Human Approval Workflow & Audit (`server/modules/approval/`)**:
+  - `approvalTypes.ts`: Schemas e interfaces do domínio para `ApprovalStatus` (`pending_approval`, `approved`, `rejected`, `cancelled`, `implemented_manually`), `ModuleOrigin`, `PriorityLevel`, `ApprovalRecord`, `ApprovalDashboard`, `ApprovalSummaryForAI` e `ActionDecisionParams`.
+  - `approvalRepository.ts`: Repositório Multi-Tenant de governança e auditoria. Coleta recomendações pendentes oriundas do Decision Engine, Executive Copilot e Strategic Simulation, provendo rastro completo de auditoria (`approvalId`, `recommendationId`, `decisionBy`, `decisionDate`, `reason`, `comments`, `originalRecommendation`, `moduleOrigin`, `correlationId`, `requestId`, `organizationId`, `propertyId`).
+  - `approvalService.ts`: Serviço orquestrador que provê o dashboard de governança, lista de pendências, histórico auditável de decisões, registro de aprovações/rejeições humanas e sumário sintético para IA.
+  - `approvalRouter.ts`: Endpoints REST padronizados (`GET /api/approval/dashboard`, `GET /api/approval/pending`, `GET /api/approval/history`, `GET /api/approval/summary`, `POST /api/approval/approve`, `POST /api/approval/reject`) alterando unicamente o estado interno de governança no Synapse, com total garantia de não execução operacional externa.
+- **Injeção do Resumo de Aprovações no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto sintético `approvalSummary` no `OperationalContext` fornecendo contagem de pendências (`pending`), contagens diárias (`approvedToday`, `rejectedToday`), tempo médio de aprovação (`averageApprovalTime`) e identificação da pendência mais antiga (`oldestPending`).
+- **Agente Especialista de Governança (`approval_agent`) e Roteamento Determinístico**:
+  - Registro do `approval_agent` em `PromptRegistry` (`server/ai/promptRegistry.ts`) em MODO CONSULTA / READ-ONLY para esclarecer status de aprovação, histórico de auditoria e compliance sem capacidade de execução automática.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com regras determinísticas para palavras-chave: `aprovação`, `aprovar`, `rejeitar`, `workflow`, `auditoria`, `compliance`, `governança`, `histórico`, `rastreabilidade`.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Human Approval Workflow & Audit Foundation` e especificação completa das rotas `/api/approval/*`.
+- **Suíte de Testes Automatizados (`server/modules/approval/approvalService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard do módulo, lista de pendências, transições de aprovação/rejeição com rastro auditável, garantia de não execução externa, `approval_agent`, `AgentRouter` e injeção no `ContextService`.
+
 ## [Milestone 10 - Etapa 10.4: Strategic Simulation & Explainable AI Foundation] - 2026-08-04
 
 ### Adicionado

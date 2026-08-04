@@ -1250,6 +1250,194 @@
         }
       }
     },
+    "/approval/dashboard": {
+      "get": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Retorna o dashboard de aprovação humana, métricas de backlog, tempos médios e contagens",
+        "operationId": "getApprovalDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Dashboard de aprovação retornado com sucesso" }
+        }
+      }
+    },
+    "/approval/pending": {
+      "get": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Retorna a lista de recomendações pendentes de aprovação humana explícita",
+        "operationId": "getPendingApprovals",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Lista de aprovações pendentes retornada com sucesso" }
+        }
+      }
+    },
+    "/approval/history": {
+      "get": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Retorna o histórico auditável completo de aprovações, rejeições e decisões",
+        "operationId": "getApprovalHistory",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Histórico de aprovações retornado com sucesso" }
+        }
+      }
+    },
+    "/approval/summary": {
+      "get": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Retorna o resumo sintético de aprovações e governança para a IA (ContextService)",
+        "operationId": "getApprovalSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Resumo de aprovações retornado com sucesso" }
+        }
+      }
+    },
+    "/approval/approve": {
+      "post": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Registra a aprovação humana de uma recomendação sem executar ação operacional externa",
+        "operationId": "approveRecommendation",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["recommendationId"],
+                "properties": {
+                  "recommendationId": { "type": "string", "example": "rec_rev_adr_increase" },
+                  "decisionBy": { "type": "string", "example": "Gerente Geral" },
+                  "reason": { "type": "string", "example": "Aprovado após análise de demanda local" },
+                  "comments": { "type": "string", "example": "Implementar alteração tarifária manualmente no Aloha PMS" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Aprovação humana registrada com sucesso no Synapse" }
+        }
+      }
+    },
+    "/approval/reject": {
+      "post": {
+        "tags": ["Human Approval Workflow & Audit Foundation"],
+        "summary": "Registra a rejeição humana de uma recomendação sem alterar sistemas externos",
+        "operationId": "rejectRecommendation",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["recommendationId"],
+                "properties": {
+                  "recommendationId": { "type": "string", "example": "rec_mkt_campaign_discount" },
+                  "decisionBy": { "type": "string", "example": "Diretor Comercial" },
+                  "reason": { "type": "string", "example": "Incompatível com o posicionamento tarifário do período" },
+                  "comments": { "type": "string", "example": "Rejeitado no conselho executivo" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Rejeição humana registrada com sucesso no Synapse" }
+        }
+      }
+    },
+    "/planning/dashboard": {
+      "get": {
+        "tags": ["Operational Planning & Playbook Foundation"],
+        "summary": "Retorna o dashboard de planejamento operacional e estatísticas de playbooks",
+        "operationId": "getPlanningDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Dashboard de planejamento retornado com sucesso" }
+        }
+      }
+    },
+    "/planning/playbooks": {
+      "get": {
+        "tags": ["Operational Planning & Playbook Foundation"],
+        "summary": "Lista todos os playbooks operacionais em execução manual ou planejados",
+        "operationId": "getPlanningPlaybooks",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Playbooks operacionais retornados com sucesso" }
+        }
+      }
+    },
+    "/planning/summary": {
+      "get": {
+        "tags": ["Operational Planning & Playbook Foundation"],
+        "summary": "Retorna o resumo do planejamento operacional formatado para o ContextService da IA",
+        "operationId": "getPlanningSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Resumo de planejamento retornado com sucesso" }
+        }
+      }
+    },
+    "/planning/generate": {
+      "post": {
+        "tags": ["Operational Planning & Playbook Foundation"],
+        "summary": "Gera playbooks operacionais de execução manual a partir das recomendações aprovadas",
+        "operationId": "generatePlanningPlaybooks",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Playbooks gerados com sucesso para execução manual" }
+        }
+      }
+    },
+    "/planning/rebuild": {
+      "post": {
+        "tags": ["Operational Planning & Playbook Foundation"],
+        "summary": "Reconstrói sequências e dependências de playbooks em memória sem ação externa",
+        "operationId": "rebuildPlanningPlaybooks",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Playbooks reconstruídos com sucesso" }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],

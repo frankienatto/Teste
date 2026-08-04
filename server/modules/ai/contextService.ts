@@ -20,6 +20,8 @@ import { executiveService } from '../executive/executiveService.ts';
 import { executiveCopilotService } from '../executiveCopilot/executiveCopilotService.ts';
 import { decisionService } from '../decision/decisionService.ts';
 import { strategyService } from '../strategy/strategyService.ts';
+import { approvalService } from '../approval/approvalService.ts';
+import { planningService } from '../planning/planningService.ts';
 import { cacheConfig } from '../../config/cacheConfig.ts';
 import { metricsCollector } from '../../utils/metricsCollector.ts';
 import { env } from '../../config/environment.ts';
@@ -151,8 +153,10 @@ export class ContextService {
     let executiveCopilotSummary = null;
     let decisionSummary = null;
     let strategySummary = null;
+    let approvalSummary = null;
+    let planningSummary = null;
     try {
-      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum, mktSum, execSum, execCopilotSum, decSum, stratSum] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum, mktSum, execSum, execCopilotSum, decSum, stratSum, apprSum, planSum] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
@@ -167,7 +171,9 @@ export class ContextService {
         executiveService.getExecutiveSummaryForAI(resolvedOrgId, resolvedPropId),
         executiveCopilotService.getExecutiveCopilotSummaryForAI(resolvedOrgId, resolvedPropId),
         decisionService.getDecisionSummaryForAI(resolvedOrgId, resolvedPropId),
-        strategyService.getStrategySummaryForAI(resolvedOrgId, resolvedPropId)
+        strategyService.getStrategySummaryForAI(resolvedOrgId, resolvedPropId),
+        approvalService.getApprovalSummaryForAI(resolvedOrgId, resolvedPropId),
+        planningService.getPlanningSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
 
       revenueSummary = revSummary;
@@ -178,6 +184,8 @@ export class ContextService {
       executiveCopilotSummary = execCopilotSum;
       decisionSummary = decSum;
       strategySummary = stratSum;
+      approvalSummary = apprSum;
+      planningSummary = planSum;
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
       const occupiedUnitsCount = reservations.filter(r => r.status === 'checked_in').length;
@@ -231,7 +239,9 @@ export class ContextService {
         executiveSummary,
         executiveCopilotSummary,
         decisionSummary,
-        strategySummary
+        strategySummary,
+        approvalSummary,
+        planningSummary
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);
@@ -252,6 +262,8 @@ export class ContextService {
       executiveCopilotSummary,
       decisionSummary,
       strategySummary,
+      approvalSummary,
+      planningSummary,
       metadata: {
         timestamp: new Date().toISOString(),
         resolvedFrom: 'pmsService_reservationService_and_n8nService'

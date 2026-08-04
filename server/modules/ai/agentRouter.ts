@@ -9,6 +9,16 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'planning_agent',
+      domain: 'Operational Planning & Playbook Specialist',
+      keywords: ['plano', 'playbook', 'planejamento', 'sequência', 'sequencia', 'cronograma', 'prioridade', 'checklist', 'execução', 'execucao', 'roadmap operacional']
+    },
+    {
+      agentId: 'approval_agent',
+      domain: 'Human Approval & Governance Specialist',
+      keywords: ['aprovação', 'aprovacao', 'aprovar', 'rejeitar', 'workflow', 'auditoria', 'compliance', 'governança', 'governanca', 'histórico', 'historico', 'rastreabilidade', 'pente fino', 'status de aprovação', 'backlog de aprovações']
+    },
+    {
       agentId: 'strategy_agent',
       domain: 'Strategic Simulation & Explainable AI Specialist',
       keywords: ['simulação', 'simulacao', 'what if', 'cenário', 'cenario', 'comparar', 'comparação', 'comparacao', 'vale a pena', 'trade off', 'trade-off', 'impacto', 'estratégia', 'estrategia', 'projeção', 'projecao', 'forecast', 'decisão', 'decisao']

@@ -7,6 +7,8 @@ import { ExecutiveSummaryForAI } from '../executive/executiveTypes.ts';
 import { ExecutiveCopilotSummaryForAI } from '../executiveCopilot/executiveCopilotTypes.ts';
 import { DecisionSummaryForAI } from '../decision/decisionTypes.ts';
 import { StrategySummaryForAI } from '../strategy/strategyTypes.ts';
+import { ApprovalSummaryForAI } from '../approval/approvalTypes.ts';
+import { PlanningSummaryForAI } from '../planning/planningTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -85,6 +87,8 @@ export interface OperationalContext {
     executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
     decisionSummary?: DecisionSummaryForAI | null;
     strategySummary?: StrategySummaryForAI | null;
+    approvalSummary?: ApprovalSummaryForAI | null;
+    planningSummary?: PlanningSummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
@@ -96,6 +100,8 @@ export interface OperationalContext {
   executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
   decisionSummary?: DecisionSummaryForAI | null;
   strategySummary?: StrategySummaryForAI | null;
+  approvalSummary?: ApprovalSummaryForAI | null;
+  planningSummary?: PlanningSummaryForAI | null;
   metadata: Record<string, any>;
 }
 
