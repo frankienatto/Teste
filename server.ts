@@ -420,6 +420,12 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
+  // Security Hardening Middlewares (Milestone 8)
+  app.use('/api/gemini', rateLimiters.ai, promptGuardMiddleware);
+  app.use('/api/ai', rateLimiters.ai, promptGuardMiddleware);
+  app.use('/api/webhooks', rateLimiters.webhooks);
+  app.use('/api', rateLimiters.rest);
+
   // Registra módulo SaaS Multi-Tenant (Milestone 2)
   app.use(saasRouter);
 

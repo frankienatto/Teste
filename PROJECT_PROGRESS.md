@@ -57,16 +57,25 @@
 
 ---
 
+### MILESTONE 8 — Production Readiness & Hardening [EM ANDAMENTO]
+- [x] **Etapa 8.1**: Security Hardening (`validationMiddleware` com Zod para PMS, Reservas, Governança, Manutenção, CRM e IA; `environment.ts` com validação de variáveis críticas e parada segura em prod; `rateLimitMiddleware` com limites independentes para IA, REST, Webhooks, Health e Swagger; `promptGuardMiddleware` com inspeção de Prompt Injection, teto de payload de 100KB e proteção contra sobrescrita de System Instructions; configurações centralizadas `appConfig`, `securityConfig`, `rateLimitConfig`, `cacheConfig`, `aiConfig`).
+- [ ] **Etapa 8.2**: Observabilidade (Error Handler padronizado, Logger JSON Google Cloud Logging, Request ID/Correlation ID, Probes de Liveness/Readiness).
+- [ ] **Etapa 8.3**: Performance (Cache TTL no ContextService com invalidação por eventos, Paginação, Métricas do Servidor).
+- [ ] **Etapa 8.4**: Documentação (Especificação OpenAPI 3.0 & Swagger UI).
+
+---
+
 ## Status Atual da Plataforma
 - **Build**: ✅ Aprovado
 - **Lint**: ✅ Aprovado
-- **Segurança**: Chaves e SDK do Gemini 100% isolados no servidor.
-- **Pipeline de IA**: Unificado via `aiOrchestrator` e `agentRouter`.
+- **Segurança**: Chaves e SDK do Gemini 100% isolados no servidor. Zod Validation, Environment Validator, Rate Limiters independentes e Prompt Injection Guard ativados.
+- **Pipeline de IA**: Unificado via `aiOrchestrator` e `agentRouter` com proteção por `promptGuardMiddleware`.
 - **Arquitetura SaaS**: Multi-Tenant desacoplado com RBAC, Repository, Onboarding e Middlewares de responsabilidade única.
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
 - **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
-- **Milestone 7 (Etapa 7.1)**: 100% Concluído e validado com o módulo Housekeeping Intelligence, máquina de estados de limpeza/vistoria, automação de tarefas no check-out, dashboard de governança, publicação na Guest Timeline e suporte read-only no `ContextService` para `housekeeping_agent`.
+- **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
+- **Milestone 8 (Etapa 8.1)**: Concluída com sucesso (Security Hardening).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

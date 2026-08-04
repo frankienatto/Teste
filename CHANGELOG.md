@@ -2,6 +2,23 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 8 - Etapa 8.1: Security Hardening] - 2026-08-04
+
+### Adicionado
+- **Módulo de Validação Zod (`server/middlewares/validationMiddleware.ts` & `server/schemas/routeSchemas.ts`)**:
+  - Schemas de validação rigorosos com Zod para PMS (categorias e UHs), Reservas, Governança, Manutenção, CRM (hóspedes e estadias) e Execução de Agentes de IA.
+  - Middleware de validação com sanitização e mensagens de erro estruturadas.
+  - Aplicação do `validateRequest` nos roteadores do PMS, Reservas, Governança, Manutenção e CRM.
+- **Validador de Ambiente Centralizado (`server/config/environment.ts`)**:
+  - Schema Zod obrigatório para validar variáveis críticas (`NODE_ENV`, `PORT`, `GEMINI_API_KEY`, `JWT_SECRET`, `N8N_SECRET`, `ALOHA_API_KEY`) e Feature Flags.
+  - Interrupção segura em ambiente de produção em caso de ausência de credenciais obrigatórias.
+- **Middleware de Rate Limiting Configurável (`server/middlewares/rateLimitMiddleware.ts` & `server/config/rateLimitConfig.ts`)**:
+  - Rate limiters independentes em memória para APIs de IA, endpoints REST, Webhooks, endpoints de Health Check e Documentação Swagger, configuráveis por variáveis de ambiente.
+- **Prompt Injection Guard (`server/middlewares/promptGuardMiddleware.ts`)**:
+  - Middleware de segurança com inspeção profunda para bloquear substituição ou sequestro de System Instructions, injeções conhecidas ("ignore previous instructions", "system prompt", etc.) e limitar payloads massivos (máx. 100KB) antes de processamento no LLM.
+- **Configurações Centralizadas (`server/config/`)**:
+  - `appConfig.ts`, `securityConfig.ts`, `rateLimitConfig.ts`, `cacheConfig.ts`, `aiConfig.ts` para eliminar constantes dispersas no código.
+
 ## [Milestone 7 - Etapa 7.3: Maintenance Intelligence] - 2026-08-03
 
 ### Adicionado

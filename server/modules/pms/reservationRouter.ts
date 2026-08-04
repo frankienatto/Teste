@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { reservationService } from './reservationService.ts';
 import { ReservationStatus } from './reservationTypes.ts';
+import { validateRequest } from '../../middlewares/validationMiddleware.ts';
+import { reservationSchemas } from '../../schemas/routeSchemas.ts';
 
 export const reservationRouter = Router();
 
@@ -54,7 +56,7 @@ reservationRouter.get('/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/pms/reservations
-reservationRouter.post('/', async (req: Request, res: Response) => {
+reservationRouter.post('/', validateRequest({ body: reservationSchemas.createReservation }), async (req: Request, res: Response) => {
   try {
     const { organizationId, propertyId } = getTenantContext(req);
     const reservation = await reservationService.createReservation(organizationId, propertyId, req.body);

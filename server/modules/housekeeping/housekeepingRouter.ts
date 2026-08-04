@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { housekeepingService } from './housekeepingService.ts';
 import { CleaningStatus, InspectionStatus, TaskPriority } from './housekeepingTypes.ts';
+import { validateRequest } from '../../middlewares/validationMiddleware.ts';
+import { housekeepingSchemas } from '../../schemas/routeSchemas.ts';
 
 export const housekeepingRouter = Router();
 
@@ -41,7 +43,7 @@ housekeepingRouter.get('/tasks', async (req: Request, res: Response) => {
  * POST /api/housekeeping/tasks
  * Criar uma nova tarefa de governança/limpeza
  */
-housekeepingRouter.post('/tasks', async (req: Request, res: Response) => {
+housekeepingRouter.post('/tasks', validateRequest({ body: housekeepingSchemas.createTask }), async (req: Request, res: Response) => {
   try {
     const organizationId = (req.body.organizationId as string) || 'org_dev_default';
     const propertyId = (req.body.propertyId as string) || 'prop_dev_default';

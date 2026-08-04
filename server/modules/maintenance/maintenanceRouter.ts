@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { maintenanceService } from './maintenanceService.ts';
+import { validateRequest } from '../../middlewares/validationMiddleware.ts';
+import { maintenanceSchemas } from '../../schemas/routeSchemas.ts';
 
 export const maintenanceRouter = Router();
 
@@ -39,7 +41,7 @@ maintenanceRouter.get('/tasks', async (req: Request, res: Response) => {
  * POST /api/maintenance/tasks
  * Criar nova ordem de manutenção
  */
-maintenanceRouter.post('/tasks', async (req: Request, res: Response) => {
+maintenanceRouter.post('/tasks', validateRequest({ body: maintenanceSchemas.createTask }), async (req: Request, res: Response) => {
   try {
     const organizationId = String(req.body.organizationId || 'org_dev_default');
     const propertyId = String(req.body.propertyId || 'prop_dev_default');
@@ -63,7 +65,7 @@ maintenanceRouter.post('/tasks', async (req: Request, res: Response) => {
  * PATCH /api/maintenance/tasks/:id
  * Atualizar status / transição de estado da ordem de manutenção
  */
-maintenanceRouter.patch('/tasks/:id', async (req: Request, res: Response) => {
+maintenanceRouter.patch('/tasks/:id', validateRequest({ body: maintenanceSchemas.updateTaskStatus }), async (req: Request, res: Response) => {
   try {
     const organizationId = String(req.body.organizationId || req.query.organizationId || 'org_dev_default');
     const propertyId = String(req.body.propertyId || req.query.propertyId || 'prop_dev_default');

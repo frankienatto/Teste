@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { crmService } from './crmService.ts';
 import { timelineService } from './timelineService.ts';
 import { guestIntelligenceService } from './guestIntelligenceService.ts';
+import { validateRequest } from '../../middlewares/validationMiddleware.ts';
+import { crmSchemas } from '../../schemas/routeSchemas.ts';
 
 import { CreateGuestDTO, UpdateGuestDTO, GuestQueryFilters } from './guestTypes.ts';
 import { AppendTimelineEventDTO } from './timelineTypes.ts';
@@ -24,7 +26,7 @@ crmRouter.use(extractTenantContext);
  * POST /api/crm/guests
  * Criar ou atualizar perfil de hóspede na Organização
  */
-crmRouter.post('/guests', async (req: Request, res: Response) => {
+crmRouter.post('/guests', validateRequest({ body: crmSchemas.createGuest }), async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).organizationId;
     const dto: CreateGuestDTO = req.body;

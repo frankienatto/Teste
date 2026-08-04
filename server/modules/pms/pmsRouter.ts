@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { pmsService } from './pmsService.ts';
 import { RoomStatus } from './pmsTypes.ts';
 import { reservationRouter } from './reservationRouter.ts';
+import { validateRequest } from '../../middlewares/validationMiddleware.ts';
+import { pmsSchemas } from '../../schemas/routeSchemas.ts';
 
 export const pmsRouter = Router();
 
@@ -67,7 +69,7 @@ pmsRouter.get('/categories/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/pms/categories
-pmsRouter.post('/categories', async (req: Request, res: Response) => {
+pmsRouter.post('/categories', validateRequest({ body: pmsSchemas.createCategory }), async (req: Request, res: Response) => {
   try {
     const { organizationId, propertyId } = getTenantContext(req);
     const category = await pmsService.createCategory(organizationId, propertyId, req.body);
@@ -131,7 +133,7 @@ pmsRouter.get('/units/:id', async (req: Request, res: Response) => {
 });
 
 // POST /api/pms/units
-pmsRouter.post('/units', async (req: Request, res: Response) => {
+pmsRouter.post('/units', validateRequest({ body: pmsSchemas.createUnit }), async (req: Request, res: Response) => {
   try {
     const { organizationId, propertyId } = getTenantContext(req);
     const unit = await pmsService.createUnit(organizationId, propertyId, req.body);
@@ -154,14 +156,11 @@ pmsRouter.put('/units/:id', async (req: Request, res: Response) => {
 });
 
 // PATCH /api/pms/units/:id/status
-pmsRouter.patch('/units/:id/status', async (req: Request, res: Response) => {
+pmsRouter.patch('/units/:id/status', validateRequest({ body: pmsSchemas.updateUnitStatus }), async (req: Request, res: Response) => {
   try {
     const { organizationId, propertyId } = getTenantContext(req);
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const { status } = req.body;
-    if (!status) {
-      return res.status(400).json({ success: false, error: "O parâmetro 'status' é obrigatório." });
-    }
     const unit = await pmsService.updateUnitStatus(organizationId, propertyId, id, status as RoomStatus);
     return res.status(200).json({ success: true, data: unit });
   } catch (error: any) {
