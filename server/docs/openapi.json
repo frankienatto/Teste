@@ -1,0 +1,980 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Synapse Hospitality API",
+    "description": "Especificação Oficial OpenAPI 3.0 para a Plataforma Synapse Hospitality (PMS, CRM, AI Orchestrator, Governança, Manutenção, Recepção e Integrações).",
+    "termsOfService": "https://synapsehospitality.com.br/terms",
+    "contact": {
+      "name": "Suporte Técnico Synapse Hospitality",
+      "email": "suporte@synapsehospitality.com.br",
+      "url": "https://synapsehospitality.com.br"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://synapsehospitality.com.br/license"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 - Versão Oficial Padronizada"
+    },
+    {
+      "url": "/api",
+      "description": "API Base - Endpoints da Aplicação"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "OrganizationHeader": [],
+      "PropertyHeader": []
+    }
+  ],
+  "paths": {
+    "/ai/copilot": {
+      "post": {
+        "tags": ["AI Orchestrator"],
+        "summary": "Executa comando no Copilot / Orquestrador com Memória e Contexto Operacional",
+        "description": "Processa um prompt de linguagem natural utilizando roteamento determinístico entre os agentes especialistas da Synapse Hospitality.",
+        "operationId": "executeAiCopilot",
+        "parameters": [
+          { "$ref": "#/components/parameters/XRequestId" },
+          { "$ref": "#/components/parameters/XCorrelationId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIRequest"
+              },
+              "example": {
+                "prompt": "Qual a taxa de ocupação projetada e sugestão de tarifa para o próximo final de semana?",
+                "agentId": "revenue_agent",
+                "sessionId": "sess_dev_123",
+                "organizationId": "org_dev_default",
+                "propertyId": "prop_dev_default"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agente executado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/ai/orchestrate": {
+      "post": {
+        "tags": ["AI Orchestrator"],
+        "summary": "Executa fluxo direto do orquestrador de IA",
+        "operationId": "orchestrateAi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AIRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AIResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/pms/categories": {
+      "get": {
+        "tags": ["PMS - Property Management"],
+        "summary": "Lista todas as categorias de unidades hoteleiras (UHs)",
+        "operationId": "listRoomCategories",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorias retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RoomCategory" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "post": {
+        "tags": ["PMS - Property Management"],
+        "summary": "Cria uma nova categoria de acomodação",
+        "operationId": "createRoomCategory",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoomCategory" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoria criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RoomCategory" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/pms/units": {
+      "get": {
+        "tags": ["PMS - Property Management"],
+        "summary": "Lista todas as unidades hoteleiras (UHs)",
+        "operationId": "listRoomUnits",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de unidades hoteleiras",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RoomUnit" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "post": {
+        "tags": ["PMS - Property Management"],
+        "summary": "Cadastra uma nova unidade hoteleira (UH)",
+        "operationId": "createRoomUnit",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoomUnit" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "UH criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RoomUnit" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/pms/inventory/summary": {
+      "get": {
+        "tags": ["PMS - Property Management"],
+        "summary": "Retorna o resumo geral do inventário de UHs da propriedade",
+        "operationId": "getPmsInventorySummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumo do inventário de UHs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalCategories": { "type": "integer", "example": 5 },
+                    "totalUnits": { "type": "integer", "example": 20 },
+                    "activeUnitsCount": { "type": "integer", "example": 18 },
+                    "unitsByStatus": {
+                      "type": "object",
+                      "properties": {
+                        "clean": { "type": "integer", "example": 10 },
+                        "dirty": { "type": "integer", "example": 4 },
+                        "inspected": { "type": "integer", "example": 2 },
+                        "maintenance": { "type": "integer", "example": 1 },
+                        "out_of_service": { "type": "integer", "example": 1 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pms/reservations": {
+      "get": {
+        "tags": ["PMS - Reservas"],
+        "summary": "Lista todas as reservas da propriedade com filtros opcionais",
+        "operationId": "listReservations",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filtra por status da reserva",
+            "schema": {
+              "type": "string",
+              "enum": ["confirmed", "checked_in", "checked_out", "cancelled", "no_show"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reservas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Reservation" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["PMS - Reservas"],
+        "summary": "Cria uma nova reserva no PMS",
+        "operationId": "createReservation",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PropertyHeaderParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateReservationDTO" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reserva criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Reservation" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/pms/reservations/{reservationId}/check-in": {
+      "post": {
+        "tags": ["PMS - Reservas"],
+        "summary": "Realiza o Check-in da reserva",
+        "operationId": "checkInReservation",
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Check-in realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Reservation" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/pms/reservations/{reservationId}/check-out": {
+      "post": {
+        "tags": ["PMS - Reservas"],
+        "summary": "Realiza o Check-out da reserva e gera ordem de limpeza de governança",
+        "operationId": "checkOutReservation",
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Check-out realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Reservation" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/guests": {
+      "get": {
+        "tags": ["CRM - Hóspedes"],
+        "summary": "Lista de hóspedes com busca, paginação e ordenação",
+        "operationId": "listGuests",
+        "parameters": [
+          { "$ref": "#/components/parameters/OrganizationHeaderParam" },
+          { "$ref": "#/components/parameters/PageQueryParam" },
+          { "$ref": "#/components/parameters/LimitQueryParam" },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filtro por nome, e-mail, telefone ou documento",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de hóspedes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "SUCCESS" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Guest" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["CRM - Hóspedes"],
+        "summary": "Cadastra um novo hóspede no CRM",
+        "operationId": "createGuest",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateGuestDTO" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hóspede cadastrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Guest" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/guests/{guestId}": {
+      "get": {
+        "tags": ["CRM - Hóspedes"],
+        "summary": "Obtém os detalhes cadastrais e estatísticas do hóspede",
+        "operationId": "getGuestById",
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil do hóspede",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Guest" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/crm/guests/{guestId}/timeline": {
+      "get": {
+        "tags": ["CRM - Timeline"],
+        "summary": "Retorna o histórico/timeline paginado de interações do hóspede",
+        "operationId": "getGuestTimeline",
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          { "$ref": "#/components/parameters/PageQueryParam" },
+          { "$ref": "#/components/parameters/LimitQueryParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeline paginada do hóspede",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "SUCCESS" },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GuestTimelineEvent" }
+                    },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/guests/{guestId}/intelligence": {
+      "get": {
+        "tags": ["CRM - Intelligence"],
+        "summary": "Calcula a inteligência do hóspede, preferências agregadas e sugestões deupsell",
+        "operationId": "getGuestIntelligence",
+        "parameters": [
+          {
+            "name": "guestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inteligência calculada do hóspede",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GuestIntelligence" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reception/dashboard": {
+      "get": {
+        "tags": ["Recepção"],
+        "summary": "Retorna os dados consolidados do Copilot de Recepção (alertas, VIPs, sugestões)",
+        "operationId": "getReceptionDashboard",
+        "responses": {
+          "200": {
+            "description": "Dashboard de recepção carregado com sucesso"
+          }
+        }
+      }
+    },
+    "/housekeeping/tasks": {
+      "get": {
+        "tags": ["Governança - Housekeeping"],
+        "summary": "Lista todas as tarefas de governança da propriedade",
+        "operationId": "listHousekeepingTasks",
+        "responses": {
+          "200": {
+            "description": "Lista de tarefas de governança",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/HousekeepingTask" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maintenance/tasks": {
+      "get": {
+        "tags": ["Manutenção"],
+        "summary": "Lista todas as ordens de serviço de manutenção da propriedade",
+        "operationId": "listMaintenanceTasks",
+        "responses": {
+          "200": {
+            "description": "Lista de tarefas de manutenção",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MaintenanceTask" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration/n8n/webhook": {
+      "post": {
+        "tags": ["Integrações - n8n"],
+        "summary": "Webhook receptor de sincronização de reservas do n8n / Aloha PMS",
+        "operationId": "receiveN8nWebhook",
+        "responses": {
+          "200": { "description": "Sincronização executada com sucesso" },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/health/liveness": {
+      "get": {
+        "tags": ["Health Check"],
+        "summary": "Liveness Probe para verificar se o processo do servidor está vivo",
+        "operationId": "checkLiveness",
+        "responses": {
+          "200": {
+            "description": "Servidor operando normalmente",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthStatus" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/readiness": {
+      "get": {
+        "tags": ["Health Check"],
+        "summary": "Readiness Probe para verificar se todas as dependências críticas estão prontas",
+        "operationId": "checkReadiness",
+        "responses": {
+          "200": {
+            "description": "Servidor pronto para receber tráfego",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthStatus" }
+              }
+            }
+          },
+          "503": {
+            "description": "Servidor indisponível ou em estado degradado"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["Métricas & Performance"],
+        "summary": "Expõe métricas de runtime do servidor, memória, latência HTTP, cache e chamadas de IA",
+        "operationId": "getMetrics",
+        "responses": {
+          "200": {
+            "description": "Resumo de métricas de desempenho em tempo real",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetricsSummary" }
+              }
+            }
+          },
+          "403": { "description": "Métricas desativadas na configuração" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Autenticação via Token JWT Bearer"
+      },
+      "OrganizationHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-organization-id",
+        "description": "Identificador do Tenant (Organização)"
+      },
+      "PropertyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-property-id",
+        "description": "Identificador do Tenant (Propriedade Hoteleira)"
+      }
+    },
+    "parameters": {
+      "OrganizationHeaderParam": {
+        "name": "x-organization-id",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string", "default": "org_dev_default" },
+        "description": "ID da organização do Tenant"
+      },
+      "PropertyHeaderParam": {
+        "name": "x-property-id",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string", "default": "prop_dev_default" },
+        "description": "ID da propriedade hoteleira do Tenant"
+      },
+      "XRequestId": {
+        "name": "X-Request-ID",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "UUID único da requisição para auditoria"
+      },
+      "XCorrelationId": {
+        "name": "X-Correlation-ID",
+        "in": "header",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "UUID de correlação para rastreamento distribuído"
+      },
+      "PageQueryParam": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "default": 1 },
+        "description": "Número da página (1-indexed)"
+      },
+      "LimitQueryParam": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "default": 20 },
+        "description": "Quantidade de itens por página"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Requisição inválida ou dados incorretos",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Limite de requisições excedido (Rate Limit)",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Erro interno no processamento do servidor",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["status", "error"],
+        "properties": {
+          "status": { "type": "string", "example": "ERROR" },
+          "error": { "type": "string", "example": "Requisição inválida" },
+          "message": { "type": "string", "example": "O parâmetro 'prompt' é obrigatório." },
+          "code": { "type": "string", "example": "INVALID_PAYLOAD" },
+          "correlationId": { "type": "string", "example": "85dd190a-4046-4fbc-b703-15a53a6827f5" },
+          "timestamp": { "type": "string", "format": "date-time", "example": "2026-08-04T12:30:00.000Z" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer", "example": 1 },
+          "limit": { "type": "integer", "example": 20 },
+          "totalItems": { "type": "integer", "example": 85 },
+          "totalPages": { "type": "integer", "example": 5 },
+          "hasNextPage": { "type": "boolean", "example": true },
+          "hasPrevPage": { "type": "boolean", "example": false }
+        }
+      },
+      "Guest": {
+        "type": "object",
+        "required": ["guestId", "fullName", "email"],
+        "properties": {
+          "guestId": { "type": "string", "example": "guest_123" },
+          "organizationId": { "type": "string", "example": "org_dev_default" },
+          "fullName": { "type": "string", "example": "Carlos Eduardo Silva" },
+          "email": { "type": "string", "example": "carlos.silva@exemplo.com" },
+          "phone": { "type": "string", "example": "+55 11 98888-7777" },
+          "cpf": { "type": "string", "example": "123.456.789-00" },
+          "documentType": { "type": "string", "example": "CPF" },
+          "documentNumber": { "type": "string", "example": "12345678900" },
+          "classification": { "type": "string", "enum": ["STANDARD", "VIP", "BLACK_LIST", "FREQUENT"], "example": "VIP" },
+          "preferences": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Andar alto", "Travesseiro de penas", "Quarto silencioso"]
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Aniversariante", "Corporativo"]
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "totalStays": { "type": "integer", "example": 4 },
+              "totalSpent": { "type": "number", "example": 3500.00 },
+              "lastStayDate": { "type": "string", "format": "date", "example": "2026-07-15" }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateGuestDTO": {
+        "type": "object",
+        "required": ["fullName", "email"],
+        "properties": {
+          "fullName": { "type": "string", "example": "Ana Maria Braga" },
+          "email": { "type": "string", "example": "ana.braga@exemplo.com" },
+          "phone": { "type": "string", "example": "+55 21 99999-0000" },
+          "cpf": { "type": "string", "example": "987.654.321-11" },
+          "preferences": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "GuestTimelineEvent": {
+        "type": "object",
+        "required": ["eventId", "guestId", "category", "title"],
+        "properties": {
+          "eventId": { "type": "string", "example": "evt_456" },
+          "guestId": { "type": "string", "example": "guest_123" },
+          "category": { "type": "string", "example": "CHECK_IN" },
+          "title": { "type": "string", "example": "Check-in realizado na UH 102" },
+          "description": { "type": "string", "example": "Atendido com prioridade VIP pelo recepcionista Gabriel." },
+          "source": { "type": "string", "example": "reception" },
+          "actor": { "type": "string", "example": "Gabriel" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "GuestIntelligence": {
+        "type": "object",
+        "properties": {
+          "guestId": { "type": "string", "example": "guest_123" },
+          "calculatedCategory": { "type": "string", "example": "VIP" },
+          "aggregatedPreferences": { "type": "array", "items": { "type": "string" } },
+          "upsellOpportunities": { "type": "array", "items": { "type": "string" } },
+          "satisfactionScore": { "type": "number", "example": 9.5 }
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "required": ["reservationId", "guestId", "checkInDate", "checkOutDate", "status"],
+        "properties": {
+          "reservationId": { "type": "string", "example": "res_789" },
+          "organizationId": { "type": "string", "example": "org_dev_default" },
+          "propertyId": { "type": "string", "example": "prop_dev_default" },
+          "guestId": { "type": "string", "example": "guest_123" },
+          "unitId": { "type": "string", "example": "unit_101" },
+          "categoryId": { "type": "string", "example": "cat_suite_luxo" },
+          "status": { "type": "string", "enum": ["confirmed", "checked_in", "checked_out", "cancelled", "no_show"] },
+          "checkInDate": { "type": "string", "format": "date", "example": "2026-08-10" },
+          "checkOutDate": { "type": "string", "format": "date", "example": "2026-08-15" },
+          "totalPrice": { "type": "number", "example": 1450.00 },
+          "guestsCount": { "type": "integer", "example": 2 },
+          "origin": { "type": "string", "example": "Direct" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateReservationDTO": {
+        "type": "object",
+        "required": ["guestId", "checkInDate", "checkOutDate", "totalPrice"],
+        "properties": {
+          "guestId": { "type": "string", "example": "guest_123" },
+          "categoryId": { "type": "string", "example": "cat_suite_luxo" },
+          "unitId": { "type": "string", "example": "unit_101" },
+          "checkInDate": { "type": "string", "format": "date", "example": "2026-08-10" },
+          "checkOutDate": { "type": "string", "format": "date", "example": "2026-08-15" },
+          "totalPrice": { "type": "number", "example": 1450.00 },
+          "guestsCount": { "type": "integer", "example": 2 }
+        }
+      },
+      "RoomCategory": {
+        "type": "object",
+        "required": ["categoryId", "name"],
+        "properties": {
+          "categoryId": { "type": "string", "example": "cat_suite_luxo" },
+          "name": { "type": "string", "example": "Suíte Luxo Frente Mar" },
+          "code": { "type": "string", "example": "LUX_MAR" },
+          "description": { "type": "string", "example": "Suíte ampla com varanda e vista para o oceano." },
+          "baseCapacity": { "type": "integer", "example": 2 },
+          "maxCapacity": { "type": "integer", "example": 4 },
+          "active": { "type": "boolean", "example": true }
+        }
+      },
+      "RoomUnit": {
+        "type": "object",
+        "required": ["unitId", "unitNumber", "status"],
+        "properties": {
+          "unitId": { "type": "string", "example": "unit_101" },
+          "categoryId": { "type": "string", "example": "cat_suite_luxo" },
+          "unitNumber": { "type": "string", "example": "101" },
+          "status": { "type": "string", "enum": ["clean", "dirty", "inspected", "maintenance", "out_of_service"], "example": "clean" },
+          "floor": { "type": "integer", "example": 1 },
+          "active": { "type": "boolean", "example": true }
+        }
+      },
+      "HousekeepingTask": {
+        "type": "object",
+        "required": ["taskId", "unitId", "status", "type"],
+        "properties": {
+          "taskId": { "type": "string", "example": "hk_task_01" },
+          "unitId": { "type": "string", "example": "unit_101" },
+          "type": { "type": "string", "example": "checkout_cleaning" },
+          "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "inspected"], "example": "pending" },
+          "priority": { "type": "string", "enum": ["low", "medium", "high"], "example": "high" },
+          "assignedTo": { "type": "string", "example": "Maria Governança" },
+          "notes": { "type": "string", "example": "Cliente VIP com check-in antecipado às 13h." }
+        }
+      },
+      "MaintenanceTask": {
+        "type": "object",
+        "required": ["taskId", "title", "status"],
+        "properties": {
+          "taskId": { "type": "string", "example": "maint_task_01" },
+          "unitId": { "type": "string", "example": "unit_104" },
+          "title": { "type": "string", "example": "Verificar aquecedor de água" },
+          "description": { "type": "string", "example": "Oscilação de temperatura na ducha da UH 104." },
+          "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "example": "urgent" },
+          "status": { "type": "string", "enum": ["open", "in_progress", "resolved", "cancelled"], "example": "open" },
+          "reportedBy": { "type": "string", "example": "Recepção - Carlos" },
+          "assignedTo": { "type": "string", "example": "Técnico João" },
+          "cost": { "type": "number", "example": 150.00 }
+        }
+      },
+      "AIRequest": {
+        "type": "object",
+        "required": ["prompt"],
+        "properties": {
+          "prompt": { "type": "string", "example": "Como está o status de ocupação hoje e quais VIPs chegam tarde?" },
+          "agentId": { "type": "string", "example": "reception_agent" },
+          "sessionId": { "type": "string", "example": "sess_dev_123" },
+          "organizationId": { "type": "string", "example": "org_dev_default" },
+          "propertyId": { "type": "string", "example": "prop_dev_default" },
+          "userId": { "type": "string", "example": "user_dev_01" }
+        }
+      },
+      "AIResponse": {
+        "type": "object",
+        "required": ["text"],
+        "properties": {
+          "text": { "type": "string", "example": "A ocupação hoje está em 85%. O hóspede VIP Carlos Silva chega às 19:30." },
+          "data": { "type": "object" },
+          "agentId": { "type": "string", "example": "reception_agent" },
+          "source": { "type": "string", "example": "gemini_pro" },
+          "metadata": { "type": "object" }
+        }
+      },
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "UP" },
+          "service": { "type": "string", "example": "synapse-hospitality-api" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "uptimeSeconds": { "type": "number", "example": 1245.8 }
+        }
+      },
+      "MetricsSummary": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "uptimeSeconds": { "type": "number", "example": 3600 },
+          "memoryUsage": {
+            "type": "object",
+            "properties": {
+              "rss": { "type": "string", "example": "120 MB" },
+              "heapTotal": { "type": "string", "example": "80 MB" },
+              "heapUsed": { "type": "string", "example": "45 MB" }
+            }
+          },
+          "httpRequests": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer", "example": 1500 },
+              "avgDurationMs": { "type": "number", "example": 12.4 }
+            }
+          },
+          "contextCache": {
+            "type": "object",
+            "properties": {
+              "hits": { "type": "integer", "example": 450 },
+              "misses": { "type": "integer", "example": 50 },
+              "invalidations": { "type": "integer", "example": 12 },
+              "hitRatioPercent": { "type": "number", "example": 90.0 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

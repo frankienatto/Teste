@@ -9,6 +9,7 @@ import {
 import { maintenanceRepository, IMaintenanceRepository } from './maintenanceRepository.ts';
 import { pmsService } from '../pms/pmsService.ts';
 import { timelineService } from '../crm/timelineService.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class MaintenanceService {
   constructor(private repo: IMaintenanceRepository = maintenanceRepository) {}
@@ -90,6 +91,7 @@ export class MaintenanceService {
       }
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return saved;
   }
 
@@ -170,6 +172,7 @@ export class MaintenanceService {
       }
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return updated;
   }
 

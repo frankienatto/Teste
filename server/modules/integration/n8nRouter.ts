@@ -1,6 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { n8nService } from './n8nService.ts';
 import { N8nWebhookPayload } from './integrationTypes.ts';
+import { parsePaginationParams, paginateArray } from '../../utils/pagination.ts';
+import { cacheConfig } from '../../config/cacheConfig.ts';
 
 export const n8nRouter = Router();
 
@@ -104,10 +106,14 @@ n8nRouter.get('/logs', (req: Request, res: Response) => {
   const propId = (req as any).propertyId;
 
   const logs = n8nService.getSyncLogs(orgId, propId);
+  const paginationParams = parsePaginationParams(req.query, cacheConfig.MAX_LOG_PAGE_SIZE, 20);
+  const paginated = paginateArray(logs, paginationParams, (l) => l.createdAt);
+
   return res.json({
     organizationId: orgId,
     propertyId: propId,
     totalLogs: logs.length,
-    logs
+    data: paginated.data,
+    pagination: paginated.pagination
   });
 });

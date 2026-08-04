@@ -57,11 +57,11 @@
 
 ---
 
-### MILESTONE 8 — Production Readiness & Hardening [EM ANDAMENTO]
+### MILESTONE 8 — Production Readiness & Hardening [CONCLUÍDO]
 - [x] **Etapa 8.1**: Security Hardening (`validationMiddleware` com Zod para PMS, Reservas, Governança, Manutenção, CRM e IA; `environment.ts` com validação de variáveis críticas e parada segura em prod; `rateLimitMiddleware` com limites independentes para IA, REST, Webhooks, Health e Swagger; `promptGuardMiddleware` com inspeção de Prompt Injection, teto de payload de 100KB e proteção contra sobrescrita de System Instructions; configurações centralizadas `appConfig`, `securityConfig`, `rateLimitConfig`, `cacheConfig`, `aiConfig`).
 - [x] **Etapa 8.2**: Observabilidade (`errorHandler.ts` padronizado sem stack em prod; `logger.ts` estruturado em JSON compatível com Google Cloud Logging e `AsyncLocalStorage`; `correlationMiddleware.ts` preservando/gerando `X-Request-ID` e `X-Correlation-ID`; `healthRouter.ts` com probes `/health/liveness` e `/health/readiness`).
-- [ ] **Etapa 8.3**: Performance (Cache TTL no ContextService com invalidação por eventos, Paginação, Métricas do Servidor).
-- [ ] **Etapa 8.4**: Documentação (Especificação OpenAPI 3.0 & Swagger UI).
+- [x] **Etapa 8.3**: Performance, Context Cache & Runtime Metrics (`contextService.ts` com cache em memória TTL 5s por tenant e invalidação reativa em PMS, CRM, Governança, Manutenção e n8n; `pagination.ts` para paginação de timeline, históricos e logs; `metricsCollector.ts` e `metricsRouter.ts` para endpoint `GET /metrics` com métricas de servidor, cache, HTTP, IA e contagens locais).
+- [x] **Etapa 8.4**: Documentação (`server/docs/openapi.json` cobrindo 100% dos módulos do sistema com OpenAPI 3.0.3, Schemas reutilizáveis de componentes, suporte a autenticação JWT, cabeçalhos Multi-Tenant e rastreamento; `server/routes/docsRouter.ts` servindo Swagger UI interativo em `/api/docs` e especificação JSON em `/api/docs/openapi.json`).
 
 ---
 
@@ -77,6 +77,6 @@
 - **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
 - **Milestone 6 (Etapas 6.1, 6.2 e 6.3)**: 100% Concluído e validado com o módulo Guest CRM Foundation, Guest Timeline & Perfil 360°, Guest Intelligence & Concierge AI, endpoints REST `/api/crm/guests/:guestId/intelligence` e `/api/crm/guests/:guestId/summary`, resumo enxuto no `ContextService` da IA e roteamento determinístico para `concierge_agent`.
 - **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
-- **Milestone 8 (Etapas 8.1 e 8.2)**: Concluídas com sucesso (Security Hardening + Observabilidade & Resiliência).
+- **Milestone 8 (Etapas 8.1, 8.2, 8.3 e 8.4)**: 100% Concluído (Security Hardening + Observabilidade & Resiliência + Performance & Context Cache + Especificação OpenAPI 3.0 & Swagger UI).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

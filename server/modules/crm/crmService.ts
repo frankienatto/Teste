@@ -9,6 +9,7 @@ import {
 } from './guestTypes.ts';
 import { guestRepository } from './guestRepository.ts';
 import { timelineService } from './timelineService.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class CrmService {
   /**
@@ -59,6 +60,7 @@ export class CrmService {
       metadata: { classification: savedGuest.classification, tags: savedGuest.tags }
     });
 
+    contextService.invalidateCache(organizationId);
     return savedGuest;
   }
 
@@ -100,6 +102,7 @@ export class CrmService {
       metadata: { preferences: saved.preferences, tags: saved.tags }
     });
 
+    contextService.invalidateCache(saved.organizationId);
     return saved;
   }
 
@@ -167,6 +170,7 @@ export class CrmService {
       });
     }
 
+    contextService.invalidateCache(updatedGuest.organizationId, stay.propertyId);
     return updatedGuest;
   }
 

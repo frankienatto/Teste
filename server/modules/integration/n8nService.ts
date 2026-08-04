@@ -9,6 +9,7 @@ import { alohaIntegrationService } from './alohaIntegrationService.ts';
 import { EventNormalizer } from './eventNormalizer.ts';
 import { reservationService } from '../pms/reservationService.ts';
 import { pmsService } from '../pms/pmsService.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class N8nService {
   private syncLogs: N8nSyncLog[] = [];
@@ -172,6 +173,7 @@ export class N8nService {
       };
 
       this.syncLogs.push(log);
+      contextService.invalidateCache(organizationId, propertyId);
 
       return {
         success: true,

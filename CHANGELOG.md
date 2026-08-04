@@ -2,7 +2,36 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
-## [Milestone 8 - Etapa 8.2: Observabilidade & Resiliência] - 2026-08-04
+## [Milestone 8 - Etapa 8.4: OpenAPI, Swagger & API Documentation] - 2026-08-04
+
+### Adicionado
+- **Especificação Completa OpenAPI 3.0.3 (`server/docs/openapi.json`)**:
+  - Especificação OpenAPI 3.0.3 cobrindo 100% dos módulos do sistema: AI Orchestrator, PMS (Categorias, UHs, Inventário e Reservas), CRM (Hóspedes, Timeline e Intelligence), Recepção Copilot, Governança (Housekeeping), Manutenção, Integrações (n8n, iCal, Google Calendar), Health Probes e Métricas.
+  - Componentes e Schemas reutilizáveis para `ErrorResponse`, `Pagination`, `Guest`, `GuestTimelineEvent`, `GuestIntelligence`, `Reservation`, `RoomCategory`, `RoomUnit`, `HousekeepingTask`, `MaintenanceTask`, `AIRequest`, `AIResponse`, `HealthStatus` e `MetricsSummary`.
+  - Configuração rigorosa de esquemas de segurança JWT (`BearerAuth`) e cabeçalhos Multi-Tenant (`OrganizationHeader`, `PropertyHeader`, `X-Request-ID`, `X-Correlation-ID`).
+  - Preparação para o padrão `/api/v1` em adição ao mapeamento legado `/api`.
+- **Roteador e Interface Interativa Swagger UI (`server/routes/docsRouter.ts`)**:
+  - Endpoint `GET /api/docs` servindo a interface interativa do Swagger UI integrada.
+  - Endpoint `GET /api/docs/openapi.json` fornecendo a especificação JSON estruturada.
+  - Mapeamento e registro oficial do roteador em `server.ts`.
+
+## [Milestone 8 - Etapa 8.3: Performance, Context Cache & Runtime Metrics] - 2026-08-04
+
+### Adicionado
+- **Context Cache em Memória (`server/modules/ai/contextService.ts` & `server/config/cacheConfig.ts`)**:
+  - Camada de cache em memória de altíssimo desempenho no `ContextService` com chaveamento composto por `organizationId:propertyId:userId:sessionId:activeGuestId`.
+  - TTL padrão de 5 segundos configurável via `cacheConfig.DEFAULT_CONTEXT_CACHE_TTL`.
+  - Invalidação automática e reativa em todas as mutações dos módulos PMS (`reservationService`, `pmsService`), CRM (`crmService`), Governança (`housekeepingService`), Manutenção (`maintenanceService`) e Integração n8n (`n8nService`).
+  - Garantia estrita de isolamento multi-tenant (impossibilidade de vazar contexto entre tenants distintos).
+- **Utilitário de Paginação Padronizado (`server/utils/pagination.ts`)**:
+  - Helper puro `parsePaginationParams` e `paginateArray` com parâmetros `page`, `limit`, `sort` e `direction`.
+  - Limites máximos configuráveis (`MAX_TIMELINE_PAGE_SIZE`, `MAX_LOG_PAGE_SIZE`, `MAX_HISTORY_PAGE_SIZE`) via `cacheConfig.ts`.
+  - Integração nos endpoints do CRM (`GET /api/crm/guests`, `GET /api/crm/guests/:guestId/timeline`) e Integrações (`GET /api/integration/n8n/logs`).
+- **Coletor e Endpoint de Métricas de Runtime (`server/utils/metricsCollector.ts` & `server/routes/metricsRouter.ts`)**:
+  - Módulo singleton `metricsCollector` para rastreamento em tempo real de uptime, uso de memória (RSS, heapTotal, heapUsed), tempo médio de resposta HTTP, hits/misses/invalidações do cache de contexto, latência de execução dos agentes de IA e contadores de entidades locais.
+  - Endpoint REST `GET /metrics` integrado ao Express em `server.ts`.
+- **Instrumentação de Desempenho na IA (`server/modules/ai/aiOrchestrator.ts`)**:
+  - Instrumentação do método `execute` no `AiOrchestrator` para registro preciso de duração de execução da IA e contagem de invocação.
 
 ### Adicionado
 - **Central Error Handler Middleware (`server/middlewares/errorHandler.ts`)**:

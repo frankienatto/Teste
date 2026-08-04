@@ -7,6 +7,8 @@ import { crmSchemas } from '../../schemas/routeSchemas.ts';
 
 import { CreateGuestDTO, UpdateGuestDTO, GuestQueryFilters } from './guestTypes.ts';
 import { AppendTimelineEventDTO } from './timelineTypes.ts';
+import { parsePaginationParams, paginateArray } from '../../utils/pagination.ts';
+import { cacheConfig } from '../../config/cacheConfig.ts';
 
 export const crmRouter = Router();
 
@@ -70,11 +72,14 @@ crmRouter.get('/guests', async (req: Request, res: Response) => {
     };
 
     const guests = await crmService.listGuests(orgId, filters);
+    const paginationParams = parsePaginationParams(req.query, cacheConfig.MAX_LOG_PAGE_SIZE, 20);
+    const paginated = paginateArray(guests, paginationParams, (g) => g.fullName);
 
     return res.status(200).json({
       status: 'SUCCESS',
       totalCount: guests.length,
-      data: guests
+      data: paginated.data,
+      pagination: paginated.pagination
     });
 
   } catch (err: any) {
@@ -301,14 +306,16 @@ crmRouter.post('/guests/:guestId/timeline', async (req: Request, res: Response) 
 crmRouter.get('/guests/:guestId/timeline', async (req: Request, res: Response) => {
   try {
     const guestId = String(req.params.guestId);
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const paginationParams = parsePaginationParams(req.query, cacheConfig.MAX_TIMELINE_PAGE_SIZE, 10);
 
-    const timeline = await timelineService.getTimeline(guestId, limit);
+    const timeline = await timelineService.getTimeline(guestId);
+    const paginated = paginateArray(timeline, paginationParams, (e) => e.createdAt);
 
     return res.status(200).json({
       status: 'SUCCESS',
       totalEvents: timeline.length,
-      data: timeline
+      data: paginated.data,
+      pagination: paginated.pagination
     });
 
   } catch (err: any) {

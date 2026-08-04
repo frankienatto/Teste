@@ -10,6 +10,7 @@ import {
   PmsInventorySummary,
   CapacityConfig
 } from './pmsTypes.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class PmsService {
   private repo: IRoomRepository;
@@ -69,7 +70,9 @@ export class PmsService {
       updatedAt: new Date().toISOString()
     };
 
-    return this.repo.saveCategory(category);
+    const saved = await this.repo.saveCategory(category);
+    contextService.invalidateCache(organizationId, propertyId);
+    return saved;
   }
 
   async updateCategory(organizationId: string, propertyId: string, categoryId: string, dto: UpdateCategoryDTO): Promise<RoomCategory> {
@@ -100,6 +103,7 @@ export class PmsService {
       throw new Error(`Falha ao atualizar a categoria '${categoryId}'.`);
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return updated;
   }
 
@@ -115,6 +119,7 @@ export class PmsService {
       await this.repo.updateUnit(organizationId, propertyId, unit.unitId, { active: false });
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return {
       success: true,
       message: `Categoria '${existing.name}' e suas UHs vinculadas foram desativadas com sucesso (soft delete).`
@@ -169,7 +174,9 @@ export class PmsService {
       updatedAt: new Date().toISOString()
     };
 
-    return this.repo.saveUnit(unit);
+    const saved = await this.repo.saveUnit(unit);
+    contextService.invalidateCache(organizationId, propertyId);
+    return saved;
   }
 
   async updateUnit(organizationId: string, propertyId: string, unitId: string, dto: UpdateUnitDTO): Promise<RoomUnit> {
@@ -198,6 +205,7 @@ export class PmsService {
       throw new Error(`Falha ao atualizar a unidade hoteleira '${unitId}'.`);
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return updated;
   }
 
@@ -214,6 +222,7 @@ export class PmsService {
       throw new Error(`Falha ao atualizar status da UH '${unitId}'.`);
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return updated;
   }
 
@@ -223,6 +232,7 @@ export class PmsService {
     // Soft Delete da UH
     await this.repo.updateUnit(organizationId, propertyId, unitId, { active: false });
 
+    contextService.invalidateCache(organizationId, propertyId);
     return {
       success: true,
       message: `Unidade hoteleira (UH ${existing.unitNumber}) foi desativada com sucesso (soft delete).`

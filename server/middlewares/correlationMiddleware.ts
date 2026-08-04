@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'node:crypto';
 import { runWithLogContext, logger } from '../utils/logger.ts';
 import { env } from '../config/environment.ts';
+import { metricsCollector } from '../utils/metricsCollector.ts';
 
 declare global {
   namespace Express {
@@ -39,9 +40,11 @@ export function correlationMiddleware(req: Request, res: Response, next: NextFun
   };
 
   runWithLogContext(logContext, () => {
-    if (env.ENABLE_REQUEST_LOGGING) {
-      res.on('finish', () => {
-        const durationMs = Date.now() - startTime;
+    res.on('finish', () => {
+      const durationMs = Date.now() - startTime;
+      metricsCollector.recordHttpRequest(durationMs);
+
+      if (env.ENABLE_REQUEST_LOGGING) {
         logger.info(`${req.method} ${req.originalUrl || req.url} ${res.statusCode} - ${durationMs}ms`, {
           method: req.method,
           url: req.originalUrl || req.url,
@@ -50,9 +53,10 @@ export function correlationMiddleware(req: Request, res: Response, next: NextFun
           ip: req.ip || req.socket.remoteAddress,
           userAgent: req.headers['user-agent'],
         });
-      });
-    }
+      }
+    });
 
     next();
   });
 }
+

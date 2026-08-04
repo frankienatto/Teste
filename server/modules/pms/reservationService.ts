@@ -13,6 +13,7 @@ import {
   ReservationStatus 
 } from './reservationTypes.ts';
 import { housekeepingService } from '../housekeeping/housekeepingService.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class ReservationService {
   private reservationRepo: IReservationRepository;
@@ -160,7 +161,9 @@ export class ReservationService {
         updatedAt: new Date().toISOString()
       };
 
-      return await this.reservationRepo.saveReservation(newReservation);
+      const created = await this.reservationRepo.saveReservation(newReservation);
+      contextService.invalidateCache(organizationId, propertyId);
+      return created;
     });
   }
 
@@ -214,6 +217,7 @@ export class ReservationService {
         throw new Error("Erro ao atualizar status da reserva durante o Check-in.");
       }
 
+      contextService.invalidateCache(organizationId, propertyId);
       return updated;
     });
   }
@@ -256,6 +260,7 @@ export class ReservationService {
         'high'
       ).catch(err => console.warn('Erro ao gerar tarefa de governança no check-out:', err));
 
+      contextService.invalidateCache(organizationId, propertyId);
       return updated;
     });
   }
@@ -289,6 +294,7 @@ export class ReservationService {
         throw new Error("Erro ao cancelar a reserva.");
       }
 
+      contextService.invalidateCache(organizationId, propertyId);
       return updated;
     });
   }
@@ -316,6 +322,7 @@ export class ReservationService {
         throw new Error("Erro ao registrar No-Show na reserva.");
       }
 
+      contextService.invalidateCache(organizationId, propertyId);
       return updated;
     });
   }

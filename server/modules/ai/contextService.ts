@@ -12,13 +12,46 @@ import { guestIntelligenceService } from '../crm/guestIntelligenceService.ts';
 import { housekeepingService } from '../housekeeping/housekeepingService.ts';
 import { receptionService } from '../reception/receptionService.ts';
 import { maintenanceService } from '../maintenance/maintenanceService.ts';
+import { cacheConfig } from '../../config/cacheConfig.ts';
+import { metricsCollector } from '../../utils/metricsCollector.ts';
+import { env } from '../../config/environment.ts';
 
+interface CacheEntry {
+  data: OperationalContext;
+  expiresAt: number;
+  organizationId: string;
+  propertyId: string;
+}
 
 export class ContextService {
+  private cache: Map<string, CacheEntry> = new Map();
+
   /**
-   * Constrói e retorna o objeto estruturado OperationalContext.
-   * Não formata strings de prompt ou templates (responsabilidade do Prompt Registry).
-   * Lê dados do tenant/propriedade/usuário e consome o PMS via pmsService e reservationService (sem acessar repositórios diretamente).
+   * Invalida o cache de contexto para uma organização/propriedade específica ou totalmente.
+   * Chamado quando ocorrem mutações no PMS, Reservas, CRM, Timeline, Governança, Manutenção ou Integrações.
+   */
+  invalidateCache(organizationId?: string, propertyId?: string): void {
+    if (!organizationId) {
+      const count = this.cache.size;
+      this.cache.clear();
+      metricsCollector.recordContextInvalidation(count);
+      return;
+    }
+
+    let invalidatedCount = 0;
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.organizationId === organizationId) {
+        if (!propertyId || entry.propertyId === propertyId) {
+          this.cache.delete(key);
+          invalidatedCount++;
+        }
+      }
+    }
+    metricsCollector.recordContextInvalidation(invalidatedCount);
+  }
+
+  /**
+   * Constrói e retorna o objeto estruturado OperationalContext com cache em memória e isolamento por tenant.
    */
   async buildOperationalContext(
     organizationId: string,
@@ -29,6 +62,19 @@ export class ContextService {
   ): Promise<OperationalContext> {
     const resolvedOrgId = organizationId || 'org_dev_default';
     const resolvedPropId = propertyId || 'prop_dev_default';
+
+    const cacheKey = `${resolvedOrgId}:${resolvedPropId}:${userId || 'none'}:${sessionId || 'none'}:${activeGuestId || 'none'}`;
+
+    // 0. Verificar Cache se habilitado
+    if (env.ENABLE_CACHE) {
+      const cached = this.cache.get(cacheKey);
+      if (cached && Date.now() < cached.expiresAt) {
+        metricsCollector.recordContextBuild(0, true);
+        return cached.data;
+      }
+    }
+
+    const startTime = Date.now();
 
     // 1. Leitura de Organização
     const orgData = await organizationRepository.getOrganizationById(resolvedOrgId);
@@ -87,8 +133,7 @@ export class ContextService {
       }
     }
 
-
-    // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
+    // 6. Integração com o PMS: Consulta via Services
     let pmsData = null;
     try {
       const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard] = await Promise.all([
@@ -151,7 +196,7 @@ export class ContextService {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);
     }
 
-    return {
+    const operationalContext: OperationalContext = {
       organization,
       property,
       user,
@@ -163,9 +208,21 @@ export class ContextService {
         resolvedFrom: 'pmsService_reservationService_and_n8nService'
       }
     };
+
+    const durationMs = Date.now() - startTime;
+    metricsCollector.recordContextBuild(durationMs, false);
+
+    if (env.ENABLE_CACHE) {
+      this.cache.set(cacheKey, {
+        data: operationalContext,
+        expiresAt: Date.now() + cacheConfig.DEFAULT_CONTEXT_CACHE_TTL,
+        organizationId: resolvedOrgId,
+        propertyId: resolvedPropId
+      });
+    }
+
+    return operationalContext;
   }
 }
 
 export const contextService = new ContextService();
-
-

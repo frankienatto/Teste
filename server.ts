@@ -26,6 +26,8 @@ import { promptGuardMiddleware } from "./server/middlewares/promptGuardMiddlewar
 import { correlationMiddleware } from "./server/middlewares/correlationMiddleware.ts";
 import { errorHandler } from "./server/middlewares/errorHandler.ts";
 import { healthRouter } from "./server/routes/healthRouter.ts";
+import { metricsRouter } from "./server/routes/metricsRouter.ts";
+import { docsRouter } from "./server/routes/docsRouter.ts";
 import { logger } from "./server/utils/logger.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
@@ -432,6 +434,12 @@ async function startServer() {
 
   // Health Checks Probes (/health/liveness, /health/readiness)
   app.use('/health', healthRouter);
+
+  // Runtime Metrics Endpoint (/metrics) (Milestone 8)
+  app.use('/metrics', metricsRouter);
+
+  // API Documentation Swagger UI (/api/docs) (Milestone 8)
+  app.use('/api/docs', docsRouter);
 
   // Security Hardening Middlewares (Milestone 8)
   app.use('/api/gemini', rateLimiters.ai, promptGuardMiddleware);

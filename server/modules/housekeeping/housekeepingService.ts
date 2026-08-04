@@ -11,6 +11,7 @@ import {
 import { IHousekeepingRepository, housekeepingRepository } from './housekeepingRepository.ts';
 import { IRoomRepository, roomRepository } from '../pms/roomRepository.ts';
 import { timelineService } from '../crm/timelineService.ts';
+import { contextService } from '../ai/contextService.ts';
 
 export class HousekeepingService {
   private repo: IHousekeepingRepository;
@@ -97,6 +98,7 @@ export class HousekeepingService {
       }).catch(err => console.warn('Erro ao registrar timeline na criação de tarefa de governança:', err));
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return saved;
   }
 
@@ -206,6 +208,7 @@ export class HousekeepingService {
       }).catch(err => console.warn('Erro ao registrar timeline na atualização de tarefa:', err));
     }
 
+    contextService.invalidateCache(organizationId, propertyId);
     return saved;
   }
 
@@ -230,7 +233,9 @@ export class HousekeepingService {
       updatedAt: new Date().toISOString()
     };
 
-    return await this.repo.save(updated);
+    const saved = await this.repo.save(updated);
+    contextService.invalidateCache(organizationId, propertyId);
+    return saved;
   }
 
   /**

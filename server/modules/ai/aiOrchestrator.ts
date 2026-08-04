@@ -7,6 +7,8 @@ import {
   OperationalContext, 
   AgentSelectionResult 
 } from "./aiTypes.ts";
+import { metricsCollector } from "../../utils/metricsCollector.ts";
+import { logger } from "../../utils/logger.ts";
 
 export interface AiOrchestratorParams {
   prompt: string;
@@ -65,6 +67,7 @@ export class AiOrchestrator {
    * 6. SessionMemory -> Armazenamento da resposta do Assistente
    */
   async execute(params: AiOrchestratorParams): Promise<AiOrchestratorResult> {
+    const startTime = Date.now();
     const {
       prompt,
       agentId: requestedAgentId,
@@ -174,6 +177,16 @@ export class AiOrchestrator {
       { role: 'assistant', content: responseText },
       { organizationId, propertyId, agentId: agentSelection.agentId }
     );
+
+    const durationMs = Date.now() - startTime;
+    metricsCollector.recordAiExecution(durationMs);
+    logger.info(`[AiOrchestrator] Execução concluída [Agente: ${agentSelection.agentId}] em ${durationMs}ms`, {
+      agentId: agentSelection.agentId,
+      durationMs,
+      source,
+      organizationId,
+      propertyId,
+    }, 'AI_ORCHESTRATOR');
 
     return {
       text: responseText,
