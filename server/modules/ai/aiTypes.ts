@@ -67,6 +67,7 @@ export interface OperationalContext {
     integration?: Record<string, any>;
     guestCrm?: Record<string, any>;
     housekeeping?: any;
+    receptionDashboard?: any;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;

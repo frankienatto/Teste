@@ -12,17 +12,16 @@ export interface PromptDefinition {
 const DEFAULT_PROMPTS: Record<string, PromptDefinition> = {
   reception_agent: {
     agentId: 'reception_agent',
-    name: 'Agente de Recepção & Reservas',
-    version: '1.1.0',
-    description: 'Atendimento a consultas operacionais de recepção, disponibilidade de UHs, reservas ativas e personalização baseada na Inteligência do Hóspede.',
-    systemInstruction: `Você é o Agente de Recepção & Reservas da plataforma Synapse AHOS no hotel {{hotelName}}.
-Sua função é fornecer informações em tempo real sobre reservas, disponibilidade de quartos (UHs), ocupação e status dos hóspedes.
+    name: 'Agente de Recepção & Reservas (Reception Copilot)',
+    version: '1.2.0',
+    description: 'Atendimento e assistência operacional inteligente para recepção, com resumo do Reception Dashboard, check-ins, check-outs, VIPs e recomendações inteligentes.',
+    systemInstruction: `Você é o Agente de Recepção & Reservas (Reception Copilot) da plataforma Synapse AHOS no hotel {{hotelName}}.
+Sua função é atuar como assistente operacional inteligente da recepção, fornecendo sínteses do Reception Dashboard em tempo real.
 DIRETRIZES OPERACIONAIS:
-1. Responda com precisão aos questionamentos baseando-se estritamente nos dados operacionais do PMS e no bloco 'guestIntelligence' do contexto.
-2. Utilize os alertas operacionais e preferências do hóspede (ex: travesseiro extra, andar alto, restrições alimentares) para personalizar as saudações e sugestões.
-3. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados. Nunca acesse repositórios diretamente fora das estruturas fornecidas.
-4. Você NÃO PODE criar, alterar, cancelar reservas ou realizar movimentações financeiras nesta etapa. Se o operador solicitar alteração de reserva, informe com polidez que alterações devem ser efetuadas pelo painel de gerenciamento do PMS.
-5. Responda em português (Brasil) de forma clara, cortês e profissional.`,
+1. Analise e apresente com clareza o Reception Dashboard (check-ins previstos, check-outs, chegadas atrasadas, pendências de early/late check-out, quartos disponíveis, sujos e em manutenção).
+2. Forneça recomendações inteligentes (Acolhimento VIP, Hóspedes Frequentes, Oportunidades de Upgrade/Upsell e Alertas Operacionais) aos recepcionistas.
+3. Você opera exclusivamente em MODO CONSULTA/READ-ONLY. Nenhuma decisão ou alteração é tomada automaticamente.
+4. Responda em português (Brasil) com clareza, objetividade e foco na excelência do atendimento da recepção.`,
     updatedAt: new Date().toISOString(),
   },
   concierge_agent: {
@@ -244,6 +243,21 @@ export function compileSystemInstruction(
         contextLines.push(`- Unidades Disponíveis (Limpas): ${hk.summary.availableUnits} | Sujas: ${hk.summary.dirtyUnits} | Limpeza em Andamento: ${hk.summary.cleaningInProcess} | Vistoria: ${hk.summary.awaitingInspection} | Bloqueadas/Manutenção: ${hk.summary.blockedOrMaintenance}`);
         contextLines.push(`- Fila de Limpeza Ativa: ${hk.queueLength} tarefas pendentes | UHs Prioritárias: ${hk.urgentUnits.join(', ') || 'Nenhuma'}`);
         contextLines.push(`- SLA Médio de Conclusão: ${hk.summary.averageSlaCompletionMinutes} min (Padrão: ${hk.slaStandardMinutes} min)`);
+      }
+
+      if (pms.receptionDashboard) {
+        const rd = pms.receptionDashboard;
+        const s = rd.summary;
+        contextLines.push(`\nReception Copilot Dashboard (Operacional de Hoje):`);
+        contextLines.push(`- Check-ins Previstos: ${s.checkinsExpectedToday} | Check-outs Previstos: ${s.checkoutsExpectedToday} | Hóspedes Hospedados: ${s.guestsInHouse}`);
+        contextLines.push(`- Chegadas Atrasadas: ${s.lateArrivals} | Early Check-ins Pendentes: ${s.pendingEarlyCheckins} | Late Check-outs Pendentes: ${s.pendingLateCheckouts}`);
+        contextLines.push(`- UHs Disponíveis: ${s.availableRooms} | Sujas: ${s.dirtyRooms} | Bloqueadas: ${s.blockedRooms} | Manutenção: ${s.maintenanceRooms} | Taxa de Ocupação: ${s.occupancyRatePercent}%`);
+        if (rd.topAlerts && rd.topAlerts.length > 0) {
+          contextLines.push(`- Alertas Operacionais de Recepção: ${rd.topAlerts.map((a: any) => `[${a.priority.toUpperCase()}] ${a.title}: ${a.description}`).join(' | ')}`);
+        }
+        if (rd.topSuggestions && rd.topSuggestions.length > 0) {
+          contextLines.push(`- Sugestões Inteligentes Recepção: ${rd.topSuggestions.map((sug: any) => `${sug.title} (${sug.guestName || 'Geral'}) - Hint: ${sug.actionableHint}`).join(' | ')}`);
+        }
       }
     }
 

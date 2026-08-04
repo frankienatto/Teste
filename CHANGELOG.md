@@ -2,6 +2,18 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 7 - Etapa 7.2: Reception Copilot] - 2026-08-03
+
+### Adicionado
+- **Módulo Reception Copilot (`server/modules/reception/`)**:
+  - `receptionTypes.ts`: Interfaces de domínio (`ReceptionDashboardSummary`, `ReceptionCheckinItem`, `ReceptionCheckoutItem`, `ReceptionSmartSuggestion`, `ReceptionDashboardData`).
+  - `receptionService.ts`: Serviço agregador operacional para recepção. Consome exclusivamente os serviços existentes (`reservationService`, `pmsService`, `housekeepingService`, `crmService`, `guestIntelligenceService`) sem acesso direto a repositórios. Consolida resumos operacionais, check-ins, check-outs, chegadas atrasadas, pendências e gera sugestões inteligentes (VIPs, recorrentes, upgrades, upsell e alertas de governança).
+  - `receptionRouter.ts`: Endpoints REST (`GET /api/reception/dashboard`, `GET /api/reception/checkins/today`, `GET /api/reception/checkouts/today`, `GET /api/reception/alerts`, `GET /api/reception/vips`).
+- **Integração com ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do bloco `receptionDashboard` em `pmsData` com resumos de check-ins, check-outs, pendências e alertas operacionais.
+- **Atualização do Prompt Registry (`server/ai/promptRegistry.ts`)**:
+  - Atualização do agente `reception_agent` (v1.2.0 - Reception Copilot) em MODO ESTRITAMENTE READ-ONLY e renderização das métricas do `Reception Copilot Dashboard` no `compileSystemInstruction`.
+
 ## [Milestone 7 - Etapa 7.1: Housekeeping Intelligence] - 2026-08-03
 
 ### Adicionado

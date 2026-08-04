@@ -52,6 +52,7 @@
 
 ### MILESTONE 7 — Operações de Campo & Inteligência de Governança [EM ANDAMENTO]
 - [x] **Etapa 7.1**: Housekeeping Intelligence (`housekeepingTypes`, `housekeepingRepository`, `housekeepingService`, `housekeepingRouter`, motor de tarefas de governança, máquina de estados `dirty` -> `assigned` -> `cleaning` -> `clean` -> `inspection` -> `available`, geração automática de tarefas no check-out, bloqueio para UHs em manutenção/fora de serviço, cancelamento com histórico, publicação Event-Driven na Guest Timeline, endpoints REST `/api/housekeeping/tasks` e `/api/housekeeping/dashboard`, integração read-only no `ContextService` para `housekeeping_agent`).
+- [x] **Etapa 7.2**: Reception Copilot (`receptionTypes`, `receptionService`, `receptionRouter`, agregação operacional exclusivamente via serviços existentes, Reception Dashboard com resumos de check-ins, check-outs, chegadas atrasadas, early/late pendentes e ocupação, motor de sugestões inteligentes e alertas operacionais, bloco `receptionDashboard` no `ContextService`, atualização do `reception_agent` em modo READ-ONLY no Prompt Registry e endpoints REST `/api/reception/dashboard`, `/api/reception/checkins/today`, `/api/reception/checkouts/today`, `/api/reception/alerts` e `/api/reception/vips`).
 
 ---
 
