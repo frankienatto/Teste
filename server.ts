@@ -25,6 +25,8 @@ import { salesRouter } from "./server/modules/sales/salesRouter.ts";
 import { marketingRouter } from "./server/modules/marketing/marketingRouter.ts";
 import { executiveRouter } from "./server/modules/executive/executiveRouter.ts";
 import { executiveCopilotRouter } from "./server/modules/executiveCopilot/executiveCopilotRouter.ts";
+import { decisionRouter } from "./server/modules/decision/decisionRouter.ts";
+import { strategyRouter } from "./server/modules/strategy/strategyRouter.ts";
 import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
 import { env } from "./server/config/environment.ts";
 import { rateLimiters } from "./server/middlewares/rateLimitMiddleware.ts";
@@ -801,6 +803,8 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
   app.use("/api/marketing", marketingRouter);
   app.use("/api/executive", executiveRouter);
   app.use("/api/executive-copilot", executiveCopilotRouter);
+  app.use("/api/decision", decisionRouter);
+  app.use("/api/strategy", strategyRouter);
 
   // Legacy Endpoint - Redirecionado internamente para o Pipeline Unificado de IA (Milestone 1)
   app.post("/api/gemini/generateText", async (req, res) => {

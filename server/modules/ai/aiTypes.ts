@@ -5,6 +5,8 @@ import { SalesSummaryForAI } from '../sales/salesTypes.ts';
 import { MarketingSummaryForAI } from '../marketing/marketingTypes.ts';
 import { ExecutiveSummaryForAI } from '../executive/executiveTypes.ts';
 import { ExecutiveCopilotSummaryForAI } from '../executiveCopilot/executiveCopilotTypes.ts';
+import { DecisionSummaryForAI } from '../decision/decisionTypes.ts';
+import { StrategySummaryForAI } from '../strategy/strategyTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -81,6 +83,8 @@ export interface OperationalContext {
     marketingSummary?: MarketingSummaryForAI | null;
     executiveSummary?: ExecutiveSummaryForAI | null;
     executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
+    decisionSummary?: DecisionSummaryForAI | null;
+    strategySummary?: StrategySummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
@@ -90,6 +94,8 @@ export interface OperationalContext {
   marketingSummary?: MarketingSummaryForAI | null;
   executiveSummary?: ExecutiveSummaryForAI | null;
   executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
+  decisionSummary?: DecisionSummaryForAI | null;
+  strategySummary?: StrategySummaryForAI | null;
   metadata: Record<string, any>;
 }
 

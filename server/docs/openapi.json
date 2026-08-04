@@ -1120,6 +1120,136 @@
         }
       }
     },
+    "/decision/dashboard": {
+      "get": {
+        "tags": ["Decision Engine & Human Approval"],
+        "summary": "Retorna o dashboard do Decision Engine com a Executive Action Queue e recomendações priorizadas",
+        "operationId": "getDecisionDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Dashboard do Decision Engine retornado com sucesso" }
+        }
+      }
+    },
+    "/decision/recommendations": {
+      "get": {
+        "tags": ["Decision Engine & Human Approval"],
+        "summary": "Retorna a lista de recomendações operacionais e estratégicas pendentes de aprovação humana",
+        "operationId": "getDecisionRecommendations",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Lista de recomendações retornada com sucesso" }
+        }
+      }
+    },
+    "/decision/priorities": {
+      "get": {
+        "tags": ["Decision Engine & Human Approval"],
+        "summary": "Retorna as prioridades diárias, gargalos críticos e ações de maior prioridade do hotel",
+        "operationId": "getDecisionPriorities",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Prioridades do Decision Engine retornadas com sucesso" }
+        }
+      }
+    },
+    "/decision/summary": {
+      "get": {
+        "tags": ["Decision Engine & Human Approval"],
+        "summary": "Retorna o resumo executivo das recomendações e taxa média de confiança",
+        "operationId": "getDecisionSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Resumo do Decision Engine retornado com sucesso" }
+        }
+      }
+    },
+    "/strategy/dashboard": {
+      "get": {
+        "tags": ["Strategic Simulation & Explainable AI"],
+        "summary": "Retorna o dashboard consolidado de simulações estratégicas, potencial financeiro e métricas em memória",
+        "operationId": "getStrategyDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Dashboard de estratégia retornado com sucesso" }
+        }
+      }
+    },
+    "/strategy/scenarios": {
+      "get": {
+        "tags": ["Strategic Simulation & Explainable AI"],
+        "summary": "Retorna a lista de cenários de simulação What If disponíveis com Explainable AI completa",
+        "operationId": "getStrategyScenarios",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Lista de cenários de simulação retornada com sucesso" }
+        }
+      }
+    },
+    "/strategy/simulate": {
+      "post": {
+        "tags": ["Strategic Simulation & Explainable AI"],
+        "summary": "Executa uma simulação tática/estratégica customizada em memória sem alterar nenhum dado no banco",
+        "operationId": "simulateCustomStrategy",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scenarioType": { "type": "string", "example": "adr_increase" },
+                  "adrIncreasePercent": { "type": "number", "example": 10 },
+                  "cancellationReductionPercent": { "type": "number", "example": 30 },
+                  "conversionIncreasePercent": { "type": "number", "example": 15 },
+                  "occupancyIncreasePercent": { "type": "number", "example": 8 },
+                  "customName": { "type": "string", "example": "Simulação Alta Temporada 2026" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Simulação executada com sucesso em memória" }
+        }
+      }
+    },
+    "/strategy/summary": {
+      "get": {
+        "tags": ["Strategic Simulation & Explainable AI"],
+        "summary": "Retorna o resumo agregado das simulações estratégicas para a IA (ContextService)",
+        "operationId": "getStrategySummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Resumo de estratégia retornado com sucesso" }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],

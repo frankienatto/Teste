@@ -2,6 +2,52 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 10 - Etapa 10.4: Strategic Simulation & Explainable AI Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Strategic Simulation & Explainable AI (`server/modules/strategy/`)**:
+  - `strategyTypes.ts`: Schemas e interfaces do domínio para `SimulationScenario`, `ScenarioMetrics`, `ExplainableAiDetails`, `StrategyDashboard`, `SimulationParams` e `StrategySummaryForAI`.
+  - `strategyRepository.ts`: Repositório Multi-Tenant de simulação analítica em memória. Consome exclusivamente as APIs públicas dos módulos existentes (Revenue, Sales, Marketing, Direct Booking, Housekeeping, Maintenance, CRM) para calcular a baseline atual e gerar 10 simulações padrão de impacto estratégico ("What If").
+  - `strategyService.ts`: Serviço orquestrador que provê visões consolidadas do dashboard, lista de cenários em memória, execução de simulações sob demanda sem persistência no banco e sumário sintético para IA.
+  - `strategyRouter.ts`: Endpoints REST padronizados (`GET /api/strategy/dashboard`, `GET /api/strategy/scenarios`, `POST /api/strategy/simulate`, `GET /api/strategy/summary`) operando com isolamento Multi-Tenant e rate limiting.
+- **Transparência e Explainable AI (100% READ-ONLY)**:
+  - Garantia de que 100% das simulações operam estritamente em memória (`status: 'simulation_only'`), com exigência de aprovação humana explícita (`humanApprovalRequired: true`, `approvalRequired: true`).
+  - Estrutura completa de Explainable AI em cada cenário contendo: `reasoning` (raciocínio lógico), `evidence` (evidências baseadas em dados), `confidenceScore` (nível de confiança), `estimatedGain` (ganho financeiro/operacional projetado), `estimatedRisk` (riscos associados), `businessImpact`, `operationalImpact`, `financialImpact`, `affectedModules` e `dependencies`.
+- **Injeção do Resumo de Estratégia no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto sintético `strategySummary` no `OperationalContext` fornecendo contagem de cenários, cenário de maior impacto, cenário de maior confiança, recomendação principal e taxa média de confiança.
+- **Agente Especialista de Simulação (`strategy_agent`) e Roteamento Determinístico**:
+  - Registro do `strategy_agent` em `PromptRegistry` (`server/ai/promptRegistry.ts`) operando estritamente em MODO CONSULTA / READ-ONLY para simular cenários e avaliar trade-offs sem alterar dados.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com roteamento determinístico para palavras-chave: `simulação`, `simulacao`, `what if`, `cenário`, `cenario`, `comparar`, `comparação`, `trade off`, `trade-off`, `projeção`, `forecast`, `decisão`.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Strategic Simulation & Explainable AI` e especificação completa das rotas `/api/strategy/*`.
+- **Suíte de Testes Automatizados (`server/modules/strategy/strategyService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard do módulo, dos 10 cenários de simulação em memória, dos campos de Explainable AI, da simulação customizada via POST, do `strategy_agent`, `AgentRouter` e injeção no `ContextService`.
+
+## [Fix - Build Configuration] - 2026-08-04
+
+### Corrigido
+- **Ajuste na Configuração do Vite (`vite.config.ts`)**:
+  - Adicionada a propriedade `emptyOutDir: true` nas opções de build do Vite para garantir a limpeza prévia do diretório `dist` e geração consistente de artefatos válidos (`index.html`, bundle client em `assets/` e servidor Express empacotado `server.cjs`).
+  - Validação completa via `compile_applet` e `lint_applet` sem erros.
+
+## [Milestone 10 - Etapa 10.3: Decision Engine & Human Approval Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Decision Engine (`server/modules/decision/`)**:
+  - `decisionTypes.ts`: Interfaces para `DecisionRecommendation`, `DecisionDashboard` e `DecisionSummaryForAI`.
+  - `decisionRepository.ts`: Repositório Multi-Tenant analítico que consolida recomendações de Executive Copilot, Executive Intelligence, Revenue, Marketing, Sales, Direct Booking, CRM, Recepção, Governança, Manutenção e PMS.
+  - `decisionService.ts`: Serviço agregador que gera a `Executive Action Queue` ordenando recomendações estratégicas e operacionais e mantendo 100% dos itens no estado obrigatório `pending_approval` com `approvalRequired: true`.
+  - `decisionRouter.ts`: Endpoints REST padronizados (`GET /api/decision/dashboard`, `/recommendations`, `/priorities`, `/summary`) protegidos por Rate Limiting e isolamento Multi-Tenant.
+- **Injeção do Resumo do Decision Engine no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto ultra-compacto `decisionSummary` no `OperationalContext` fornecendo visão sintética da Fila de Ações, total de recomendações pendentes, ações críticas e taxa média de confiança.
+- **Agente do Decision Engine (`decision_agent`) e Roteamento Determinístico**:
+  - Registro de `decision_agent` no `PromptRegistry` (`server/ai/promptRegistry.ts`) em MODO CONSULTA / READ-ONLY focado em explicar a lógica, riscos e prioridades das ações sugeridas sem executá-las.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com mapeamento determinístico para: `recomendação`, `plano de ação`, `prioridade`, `o que devo fazer`, `próxima ação`, `fila de prioridades`, `roadmap operacional`, `decision engine`, `aprovação humana`.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Decision Engine & Human Approval` e documentação completa de todas as rotas `/api/decision/*`.
+- **Suíte de Testes Automatizados (`server/modules/decision/decisionService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard do Decision Engine, da Fila de Ações Executivas, do estado `pending_approval` obrigatório em 100% das recomendações, do `decision_agent`, `AgentRouter` e `ContextService`.
+
 ## [Milestone 10 - Etapa 10.2: Executive Copilot & Strategic Decision Intelligence] - 2026-08-04
 
 ### Adicionado

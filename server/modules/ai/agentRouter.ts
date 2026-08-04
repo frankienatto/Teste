@@ -9,6 +9,16 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'strategy_agent',
+      domain: 'Strategic Simulation & Explainable AI Specialist',
+      keywords: ['simulação', 'simulacao', 'what if', 'cenário', 'cenario', 'comparar', 'comparação', 'comparacao', 'vale a pena', 'trade off', 'trade-off', 'impacto', 'estratégia', 'estrategia', 'projeção', 'projecao', 'forecast', 'decisão', 'decisao']
+    },
+    {
+      agentId: 'decision_agent',
+      domain: 'Decision Engine & Human Approval Specialist',
+      keywords: ['recomendação', 'recomendacao', 'plano de ação', 'plano de acao', 'prioridade', 'o que devo fazer', 'próxima ação', 'proxima acao', 'fila de prioridades', 'roadmap operacional', 'decision engine', 'aprovação', 'aprovacao', 'aprovacao humana', 'aprovação humana', 'fila de ações', 'fila de acoes']
+    },
+    {
       agentId: 'executive_copilot_agent',
       domain: 'Executive Copilot & Strategic Decision Intelligence',
       keywords: ['copilot', 'executive copilot', 'health score', 'executive score', 'risk score', 'opportunity score', 'executive dashboard', 'estratégia', 'estrategia', 'prioridades', 'diretoria', 'presidência', 'presidencia', 'ceo', 'gestão', 'gestao', 'decisão', 'decisao', 'brief', 'executive brief']
