@@ -9,6 +9,7 @@ import { DecisionSummaryForAI } from '../decision/decisionTypes.ts';
 import { StrategySummaryForAI } from '../strategy/strategyTypes.ts';
 import { ApprovalSummaryForAI } from '../approval/approvalTypes.ts';
 import { PlanningSummaryForAI } from '../planning/planningTypes.ts';
+import { ExecutionSummaryForAI } from '../execution/executionTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -89,6 +90,7 @@ export interface OperationalContext {
     strategySummary?: StrategySummaryForAI | null;
     approvalSummary?: ApprovalSummaryForAI | null;
     planningSummary?: PlanningSummaryForAI | null;
+    executionSummary?: ExecutionSummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
@@ -102,6 +104,7 @@ export interface OperationalContext {
   strategySummary?: StrategySummaryForAI | null;
   approvalSummary?: ApprovalSummaryForAI | null;
   planningSummary?: PlanningSummaryForAI | null;
+  executionSummary?: ExecutionSummaryForAI | null;
   metadata: Record<string, any>;
 }
 

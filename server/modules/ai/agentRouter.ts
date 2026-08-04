@@ -9,6 +9,11 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'execution_agent',
+      domain: 'Operational Execution Tracking Specialist',
+      keywords: ['execução', 'execucao', 'acompanhamento', 'progresso', 'status de execução', 'bloqueio', 'gargalo', 'sla', 'produtividade', 'tempo de execução']
+    },
+    {
       agentId: 'planning_agent',
       domain: 'Operational Planning & Playbook Specialist',
       keywords: ['plano', 'playbook', 'planejamento', 'sequência', 'sequencia', 'cronograma', 'prioridade', 'checklist', 'execução', 'execucao', 'roadmap operacional']
