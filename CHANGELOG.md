@@ -2,6 +2,32 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 5 - Etapa 5.2: Motor de Sincronização iCal Universal] - 2026-08-03
+
+### Adicionado
+- **Módulo iCal Universal Desacoplado (`server/modules/integration/ical/`)**:
+  - `icalTypes.ts`: Tipos e contratos conforme norma RFC 5545 (`ICalEvent`, `ICalParseResult`, `ICalGenerateOptions`, `ICalFeedSummary`).
+  - `icalParser.ts`: Parser iCalendar RFC 5545 puro com suporte a line unfolding, tratamento flexível de datas UTC/ISO (`parseICalDate`) e conversão de eventos para `CreateReservationDTO`.
+  - `icalGenerator.ts`: Gerador de especificações RFC 5545 (`BEGIN:VCALENDAR`, `BEGIN:VEVENT`, `UID`, `DTSTART`, `DTEND`, `SUMMARY`, `DESCRIPTION`, `LOCATION`, `STATUS`) para exportação de calendários `.ics`.
+  - `icalService.ts`: Serviço orquestrador de exportação por propriedade/UH, importação de feeds externos e controle de métricas.
+  - `icalRouter.ts`: Endpoints Express REST (`GET /api/integration/ical/export/property/:propertyId`, `GET /export/unit/:unitId`, `POST /import`).
+- **Resumo para Agentes de IA (`server/modules/ai/contextService.ts`)**:
+  - Exposição de `icalFeed` (resumo de feeds ativos e timestamp de exportação/importação) em modo read-only no contexto dos Agentes.
+
+## [Milestone 5 - Etapa 5.1: Módulo de Integração n8n & Aloha PMS Foundation] - 2026-08-03
+
+### Adicionado
+- **Arquitetura de Barramento de Integração n8n (ADR-005)**:
+  - Criação da infraestrutura desacoplada para consumo de webhooks e payloads vindos do n8n (conectado ao Aloha PMS, iCal Universal e Google Calendar).
+- **Tipagem e Módulos de Integração (`server/modules/integration/`)**:
+  - `integrationTypes.ts`: Tipos para `N8nWebhookPayload`, `N8nEventType`, `AlohaReservationPayload`, `AlohaUnitStatusPayload`, `IngestionResult`, `N8nSyncLog`, `ICalSyncConfig` e `GCalSyncConfig`.
+  - `eventNormalizer.ts`: Normalizador de payloads brutos do Aloha/OTAs para os DTOs internos do Synapse PMS (`toCreateReservationDTO`, `toUpdateUnitStatusDTO`, `normalizeSourceChannel`).
+  - `alohaIntegrationService.ts`: Adaptador desacoplado para sanitização e validação de contratos do Aloha PMS sem acoplamento de regras de negócio.
+  - `n8nService.ts`: Orquestrador central de eventos (`reservation.created`, `reservation.updated`, `reservation.cancelled`, `unit.status_changed`, `ical.sync_requested`, `gcal.sync_requested`) com log de auditoria em memória por tenant.
+  - `n8nRouter.ts`: Endpoints REST (`POST /api/integration/n8n/webhook`, `GET /health`, `GET /logs`) com autenticação via token e contexto multi-tenant.
+- **Integração com o ContextService de IA (`server/modules/ai/contextService.ts`)**:
+  - `ContextService` atualizado para incluir resumo das métricas de sincronização e saúde do n8n (`totalEventsProcessed`, `lastSyncStatus`, `icalSyncStatus`, `gcalSyncStatus`) no contexto dos Agentes em modo somente leitura.
+
 ## [Milestone 4 - Etapa 4.3: Integração do PMS com os Agentes de IA] - 2026-08-03
 
 ### Adicionado

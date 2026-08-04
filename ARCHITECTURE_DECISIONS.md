@@ -25,3 +25,13 @@
   5. Onboarding atômico que provisiona `Organization`, `Property` e `Owner User` com IDs independentes, retornando status e `nextSteps` sem criar agentes automaticamente.
   6. `IntegrationRegistry` atua exclusivamente registrando e listando metadados de conectores de terceiros, sem acoplamento prévio de fluxos OAuth.
 - **Motivação**: Construir uma fundação SaaS limpa, escalável e segura sem contaminar o arquivo `server.ts` e com isolamento total entre tenants e controle granular de permissões.
+
+## ADR-005: Substituição do Channel Manager Próprio por Camada Inteligente Integrada (Aloha PMS + n8n + iCal + Google Calendar)
+- **Data**: 2026-08-03
+- **Decisão**: 
+  1. O Synapse AHOS **NÃO** desenvolverá um Channel Manager próprio nem conexões diretas via API/OAuth com OTAs (Booking.com, Airbnb, Expedia, etc.).
+  2. O **Aloha PMS** atuará como o sistema operacional hoteleiro primário para gestão direta de UHs, tarifas base e distribuição nativa em OTAs.
+  3. O **n8n** é adotado como barramento oficial de integração e automação para consumo de webhooks/APIs do Aloha, sincronização de feeds **iCal** universais e **Google Calendar**, com normalização de payloads enviada ao Synapse.
+  4. O **Synapse Hospitality** consolida-se estritamente como a **Camada Inteligente Superior** (IA, Copilot Operacional, CRM, Marketing, Revenue Management, Financeiro, BI, Dashboards e Automações).
+- **Motivação**: Eliminar sobre-engenharia e manutenção de centenas de adaptadores OAuth/API de OTAs voláteis, concentrando os esforços de engenharia do Synapse na sua verdadeira proposta de valor: Inteligência Artificial, CRM, Revenue e Operação Autônoma.
+

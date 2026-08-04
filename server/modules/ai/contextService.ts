@@ -3,6 +3,8 @@ import { sessionMemory } from './sessionMemory.ts';
 import { organizationRepository } from '../saas/organizationRepository.ts';
 import { pmsService } from '../pms/pmsService.ts';
 import { reservationService } from '../pms/reservationService.ts';
+import { n8nService } from '../integration/n8nService.ts';
+import { icalService } from '../integration/ical/icalService.ts';
 
 export class ContextService {
   /**
@@ -58,7 +60,11 @@ export class ContextService {
       ? await sessionMemory.getRecentMessages(sessionId) 
       : [];
 
-    // 5. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
+    // 5. Resumo da Integração n8n / Aloha PMS & iCal Universal
+    const integrationSummary = n8nService.getIntegrationSummary(resolvedOrgId, resolvedPropId);
+    const icalSummary = icalService.getICalSummary(resolvedOrgId, resolvedPropId);
+
+    // 6. Integração com o PMS (Etapa 4.3): Consulta de dados em tempo real via Services (pmsService e reservationService)
     let pmsData = null;
     try {
       const [categories, units, inventorySummary, reservations] = await Promise.all([
@@ -89,6 +95,10 @@ export class ContextService {
           outOfServiceUnits: inventorySummary.unitsByStatus.out_of_service,
           occupancyRatePercent,
           totalActiveReservations: activeReservations.length
+        },
+        integration: {
+          ...integrationSummary,
+          icalFeed: icalSummary
         }
       };
     } catch (err: any) {
@@ -103,10 +113,11 @@ export class ContextService {
       sessionHistory,
       metadata: {
         timestamp: new Date().toISOString(),
-        resolvedFrom: 'pmsService_and_reservationService'
+        resolvedFrom: 'pmsService_reservationService_and_n8nService'
       }
     };
   }
 }
 
 export const contextService = new ContextService();
+

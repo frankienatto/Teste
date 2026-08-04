@@ -12,6 +12,8 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "fire
 import { compileSystemInstruction, getAllPrompts, getPrompt, updatePrompt } from "./server/ai/promptRegistry.ts";
 import { saasRouter } from "./server/modules/saas/saasRouter.ts";
 import { pmsRouter } from "./server/modules/pms/pmsRouter.ts";
+import { n8nRouter } from "./server/modules/integration/n8nRouter.ts";
+import { icalRouter } from "./server/modules/integration/ical/icalRouter.ts";
 import { aiOrchestrator } from "./server/modules/ai/aiOrchestrator.ts";
 
 // Patch to intercept and silence benign gRPC idle stream warnings/errors from Firestore SDK in Node.js
@@ -745,9 +747,11 @@ async function runGeminiCoreExecution(params: GeminiCoreParams): Promise<GeminiC
     }
   });
 
-  // Módulos SaaS e PMS (Milestone 2 & Milestone 4)
+  // Módulos SaaS, PMS, n8n e iCal Universal (Milestones 2, 4 e 5)
   app.use("/api/saas", saasRouter);
   app.use("/api/pms", pmsRouter);
+  app.use("/api/integration/n8n", n8nRouter);
+  app.use("/api/integration/ical", icalRouter);
 
   // Legacy Endpoint - Redirecionado internamente para o Pipeline Unificado de IA (Milestone 1)
   app.post("/api/gemini/generateText", async (req, res) => {

@@ -29,10 +29,17 @@
 
 ---
 
-### MILESTONE 4 — Núcleo do PMS (Property Management System) [EM ANDAMENTO]
+### MILESTONE 4 — Núcleo do PMS (Property Management System) [CONCLUÍDO]
 - [x] **Etapa 4.1**: Núcleo do PMS - Inventário de Acomodações & UHs (`RoomCategory`, `RoomUnit`, `RoomStatus`, `IRoomRepository`, `InMemoryRoomRepository`, `pmsService`, `pmsRouter`).
 - [x] **Etapa 4.2**: Motor de Reservas (Reservation Core) (`Reservation`, `Guest`, `StayPeriod`, `IReservationRepository`, `InMemoryReservationRepository`, `reservationService`, `reservationRouter`, prevenção atômica de overbooking, bloqueio de UHs inativas/em manutenção, transições de estado Check-in/Check-out/Cancelamento/No-Show).
 - [x] **Etapa 4.3**: Integração do PMS com os Agentes de IA (Alimentação do `ContextService` via `pmsService` e `reservationService`, prompts especializados de `reception_agent` e `housekeeping_agent`, permissão em modo read-only de consulta sem mutação de dados operacionais e suporte total a multi-tenant).
+
+---
+
+### MILESTONE 5 — Barramento de Integração n8n, Aloha PMS, iCal Universal & Google Calendar [EM ANDAMENTO]
+- [x] **Etapa 5.1**: Módulo de Integração n8n & Normalização de Payloads (`integrationTypes`, `eventNormalizer`, `alohaIntegrationService`, `n8nService`, `n8nRouter`, ingestão de eventos do Aloha PMS, auditoria por tenant e alimentação do `ContextService`).
+- [x] **Etapa 5.2**: Motor de Sincronização iCal Universal (`icalTypes`, `icalParser` RFC 5545, `icalGenerator`, `icalService`, `icalRouter`, exportação de feeds `.ics` por UH/propriedade, importação/parsing de calendários externos e alimentação read-only do `ContextService`).
+- [ ] **Etapa 5.3**: Integração com Google Calendar API (Sincronização bidirecional de eventos operacionais, bloqueios e bloqueio de manutenção via n8n).
 
 ---
 
@@ -43,6 +50,7 @@
 - **Pipeline de IA**: Unificado via `aiOrchestrator` e `agentRouter`.
 - **Arquitetura SaaS**: Multi-Tenant desacoplado com RBAC, Repository, Onboarding e Middlewares de responsabilidade única.
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
-- **Milestone 4 (Etapa 4.1)**: 100% Concluído e validado com suporte a categorias, UHs, validações estritas, soft delete e isolamento multi-tenant.
-- **Milestone 4 (Etapa 4.2)**: 100% Concluído e validado com motor de reservas completo, prevenção atômica de overbooking, isolamento multi-tenant e transições de estado puras.
-- **Milestone 4 (Etapa 4.3)**: 100% Concluído e validado com integração nativa do PMS ao pipeline de IA (`ContextService` -> `pmsService`/`reservationService` -> `PromptRegistry` -> `aiOrchestrator`).
+- **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
+- **Milestone 5 (Etapas 5.1 e 5.2)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor de sincronização iCal Universal (RFC 5545), endpoints REST `/api/integration/n8n` e `/api/integration/ical`, e suporte ao `ContextService` da IA.
+- **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
+
