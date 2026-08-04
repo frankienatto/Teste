@@ -2,6 +2,41 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 4 - Etapa 4.3: Integração do PMS com os Agentes de IA] - 2026-08-03
+
+### Adicionado
+- **Integração do ContextService com Serviços do PMS (`server/modules/ai/contextService.ts`)**:
+  - `ContextService` atualizado para consumir diretamente `pmsService` e `reservationService` (sem nunca acessar repositórios diretamente).
+  - Leitura em tempo real e agregação de dados de inventário, categorias de acomodação, unidades hoteleiras (UHs), reservas e resumos de taxa de ocupação e governança.
+  - Suporte estrito a isolamento multi-tenant (`organizationId` e `propertyId`).
+- **Prompts Especializados dos Agentes Operacionais (`server/ai/promptRegistry.ts`)**:
+  - Cadastradas definições formais para `reception_agent` (Agente de Recepção & Reservas) e `housekeeping_agent` (Agente de Governança & Manutenção), além dos agentes setoriais (`financial_agent`, `marketing_agent`, `synapse_copilot`).
+  - Atualizada a função pura `compileSystemInstruction` para embutir o bloco de dados operacionais em tempo real do PMS no contexto do agente.
+  - Regra de permissão estrita nos prompts: agentes operacionais atuam em modo **read-only**, sem permissão para criar, alterar ou cancelar reservas nesta etapa.
+- **Aprimoramento de Palavras-Chave no Roteamento (`server/modules/ai/agentRouter.ts`)**:
+  - Ampliação das palavras-chave do `housekeeping_agent` (termos de limpeza, higienização, vistoria, sujo/limpo, camareira) mantendo o roteamento 100% determinístico.
+
+## [Milestone 4 - Etapa 4.2: Motor de Reservas (Reservation Core)] - 2026-08-03
+
+### Adicionado
+- **Modelagem de Domínio de Reservas (`server/modules/pms/reservationTypes.ts`)**:
+  - Tipagem estrita para `Reservation`, `Guest`, `StayPeriod`, `ReservationStatus` (`confirmed`, `checked_in`, `checked_out`, `cancelled`, `no_show`), `ReservationSource`, `PaymentStatus` e DTOs de criação, edição e filtragem.
+- **Camada de Repositório Transacional (`server/modules/pms/reservationRepository.ts`)**:
+  - Interface `IReservationRepository` e implementação concreta `InMemoryReservationRepository`.
+  - Método de busca de reservas conflitantes para cálculo de sobreposição de datas e prevenção de overbooking.
+  - Método de abstração `runInTransaction` preparado para futura integração transacional (ex: Firestore `runTransaction`).
+- **Serviço do Motor de Reservas (`server/modules/pms/reservationService.ts`)**:
+  - Prevenção ativa de overbooking e validação estrita de conflitos de datas em tempo de criação.
+  - Bloqueio imediato de criação de reservas para Unidades Hoteleiras inativas, em manutenção ou fora de serviço.
+  - Validações de capacidade máxima da categoria de acomodação (adultos e total de hóspedes).
+  - Cálculo automático de valor total estimado (diária base da categoria x número de noites) sem integrações de pagamento ou gateways.
+  - Transições puras de estado: Check-in (`confirmed` -> `checked_in`) e Check-out (`checked_in` -> `checked_out`).
+  - Mudança automática de estado da Unidade Hoteleira para `dirty` no Check-out para liberação da equipe de governança.
+  - Fluxos de Cancelamento e No-Show com registro de observações.
+- **Controlador REST HTTP (`server/modules/pms/reservationRouter.ts`)**:
+  - Endpoints REST desacoplados sob `/api/pms/reservations` com suporte nativo a isolamento multi-tenant (`organizationId` e `propertyId`).
+  - Acoplamento limpo no `pmsRouter.ts` como sub-roteador.
+
 ## [Milestone 4 - Etapa 4.1: Núcleo do PMS - Inventário de Acomodações & UHs] - 2026-08-03
 
 ### Adicionado

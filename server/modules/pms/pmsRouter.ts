@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { pmsService } from './pmsService.ts';
 import { RoomStatus } from './pmsTypes.ts';
+import { reservationRouter } from './reservationRouter.ts';
 
 export const pmsRouter = Router();
+
+// Sub-roteador do Motor de Reservas (Etapa 4.2)
+pmsRouter.use('/reservations', reservationRouter);
 
 // Helper de extração de Tenant Context das requisições
 function getTenantContext(req: Request): { organizationId: string; propertyId: string } {

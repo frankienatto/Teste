@@ -10,6 +10,64 @@ export interface PromptDefinition {
 }
 
 const DEFAULT_PROMPTS: Record<string, PromptDefinition> = {
+  reception_agent: {
+    agentId: 'reception_agent',
+    name: 'Agente de Recepção & Reservas',
+    version: '1.0.0',
+    description: 'Atendimento a consultas operacionais de recepção, disponibilidade de UHs, reservas ativas e status de ocupação do hotel.',
+    systemInstruction: `Você é o Agente de Recepção & Reservas da plataforma Synapse AHOS no hotel {{hotelName}}.
+Sua função é fornecer informações em tempo real sobre reservas, disponibilidade de quartos (UHs), ocupação e status dos hóspedes.
+DIRETRIZES OPERACIONAIS:
+1. Responda com precisão aos questionamentos baseando-se estritamente nos dados operacionais do PMS fornecidos no contexto.
+2. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados.
+3. Você NÃO PODE criar, alterar, cancelar reservas ou realizar movimentações financeiras nesta etapa. Se o operador solicitar alteração de reserva, informe com polidez que alterações devem ser efetuadas pelo painel de gerenciamento do PMS.
+4. Responda em português (Brasil) de forma clara, cortês e profissional.`,
+    updatedAt: new Date().toISOString(),
+  },
+  housekeeping_agent: {
+    agentId: 'housekeeping_agent',
+    name: 'Agente de Governança & Manutenção',
+    version: '1.0.0',
+    description: 'Consulta de status de limpeza, higienização, vistorias e unidades hoteleiras em manutenção.',
+    systemInstruction: `Você é o Agente de Governança & Manutenção da plataforma Synapse AHOS no hotel {{hotelName}}.
+Sua função é auxiliar a equipe de governança e manutenção informando o estado das UHs (Sujas, Limpas, Vistoriadas, Manutenção e Fora de Serviço).
+DIRETRIZES OPERACIONAIS:
+1. Analise o status de limpeza e manutenção do inventário de UHs disponibilizado no contexto do PMS.
+2. Destaque quais UHs precisam prioritariamente de limpeza (status 'dirty') para liberação de Check-in.
+3. Você tem permissão EXCLUSIVA de CONSULTA e LEITURA de dados.
+4. Responda em português (Brasil) com objetividade e foco na eficiência da equipe de campo.`,
+    updatedAt: new Date().toISOString(),
+  },
+  financial_agent: {
+    agentId: 'financial_agent',
+    name: 'Agente Financeiro & DRE',
+    version: '1.0.0',
+    description: 'Análise financeira, receitas de diárias, caixa e faturamento da propriedade.',
+    systemInstruction: `Você é o Agente Financeiro & DRE do hotel {{hotelName}}.
+Analise faturamentos, valores totais de reservas e indicadores operacionais financeiros com rigor e clareza.
+Responda em português (Brasil) de forma prática e pautada em dados.`,
+    updatedAt: new Date().toISOString(),
+  },
+  marketing_agent: {
+    agentId: 'marketing_agent',
+    name: 'Agente de Marketing & Vendas',
+    version: '1.0.0',
+    description: 'Campanhas, ofertas promocionais e atração de reservas diretas.',
+    systemInstruction: `Você é o Agente de Marketing & Vendas do hotel {{hotelName}}.
+Crie campanhas publicitárias e estratégias de captação de hóspedes com foco na maximização da taxa de ocupação.
+Responda em português (Brasil) com linguagem persuasiva e engajadora.`,
+    updatedAt: new Date().toISOString(),
+  },
+  synapse_copilot: {
+    agentId: 'synapse_copilot',
+    name: 'Synapse Copilot Operacional',
+    version: '1.0.0',
+    description: 'Copilot geral e assistente multifuncional da plataforma hoteleira Synapse AHOS.',
+    systemInstruction: `Você é o Synapse Copilot Operacional, assistente multifuncional no hotel {{hotelName}}.
+Auxilie operadores, gerentes e recepcionistas com visões consolidadas do sistema hoteleiro.
+Responda em português (Brasil) com clareza, concisão e foco em resultados.`,
+    updatedAt: new Date().toISOString(),
+  },
   guest_concierge: {
     agentId: 'guest_concierge',
     name: 'Concierge Virtual 24/7',
@@ -140,6 +198,32 @@ export function compileSystemInstruction(
     if (operationalContext.user) {
       contextLines.push(`Operador: ${operationalContext.user.name} (Cargo: ${operationalContext.user.role})`);
     }
+
+    if (operationalContext.pmsData) {
+      const pms = operationalContext.pmsData;
+      contextLines.push('\n--- DADOS OPERACIONAIS DO PMS (TEMPO REAL VIA PMS SERVICES) ---');
+      if (pms.summary) {
+        contextLines.push(`Resumo da Ocupação & Inventário:`);
+        contextLines.push(`- Total de Categorias: ${pms.summary.totalCategories}`);
+        contextLines.push(`- Total de UHs: ${pms.summary.totalUnits} (Ativas: ${pms.summary.activeUnits})`);
+        contextLines.push(`- UHs Ocupadas: ${pms.summary.occupiedUnits} | Taxa de Ocupação: ${pms.summary.occupancyRatePercent}%`);
+        contextLines.push(`- Status de Governança/Manutenção: Limpas=${pms.summary.cleanUnits}, Sujas=${pms.summary.dirtyUnits}, Vistoriadas=${pms.summary.inspectedUnits}, Manutenção=${pms.summary.maintenanceUnits}, Fora de Serviço=${pms.summary.outOfServiceUnits}`);
+        contextLines.push(`- Total de Reservas Ativas Cadastradas: ${pms.summary.totalActiveReservations}`);
+      }
+      if (pms.units && pms.units.length > 0) {
+        contextLines.push(`\nUnidades Hoteleiras (UHs) no Inventário:`);
+        pms.units.forEach((u: any) => {
+          contextLines.push(`  * UH ${u.unitNumber} (ID: ${u.unitId}) | Status: '${u.status}' | Categoria: '${u.categoryId}' | Bloco/Andar: ${u.block || 'N/A'}/${u.floor || 'N/A'} | Ativa: ${u.active ? 'Sim' : 'Não'}`);
+        });
+      }
+      if (pms.reservations && pms.reservations.length > 0) {
+        contextLines.push(`\nReservas do PMS:`);
+        pms.reservations.forEach((r: any) => {
+          contextLines.push(`  * [${r.reservationId}] Hóspede: ${r.guest?.fullName} (${r.guest?.email}) | UH ID: ${r.unitId} | Datas: ${r.stayPeriod?.checkInDate} a ${r.stayPeriod?.checkOutDate} (${r.stayPeriod?.numberOfNights} noites) | Status: '${r.status}' | Total: R$ ${r.totalAmount}`);
+        });
+      }
+    }
+
     contextLines.push('--- FIM DO CONTEXTO OPERACIONAL ---');
     compiled += contextLines.join('\n');
   }

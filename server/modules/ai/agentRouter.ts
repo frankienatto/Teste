@@ -21,7 +21,7 @@ export class AgentRouter {
     {
       agentId: 'housekeeping_agent',
       domain: 'Governança & Manutenção',
-      keywords: ['manutencao', 'manutenção', 'limpeza', 'governanca', 'governança', 'camareira', 'toalha', 'enxoval', 'reparo', 'vazamento', 'ar condicionado', 'frigobar', 'vistoria']
+      keywords: ['manutencao', 'manutenção', 'limpeza', 'governanca', 'governança', 'camareira', 'toalha', 'enxoval', 'reparo', 'vazamento', 'ar condicionado', 'frigobar', 'vistoria', 'sujo', 'suja', 'sujos', 'sujas', 'higienização', 'higienizacao', 'arrumação', 'arrumacao', 'faxina', 'out_of_service', 'dirty', 'clean']
     },
     {
       agentId: 'marketing_agent',

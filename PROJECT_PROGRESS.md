@@ -31,6 +31,8 @@
 
 ### MILESTONE 4 — Núcleo do PMS (Property Management System) [EM ANDAMENTO]
 - [x] **Etapa 4.1**: Núcleo do PMS - Inventário de Acomodações & UHs (`RoomCategory`, `RoomUnit`, `RoomStatus`, `IRoomRepository`, `InMemoryRoomRepository`, `pmsService`, `pmsRouter`).
+- [x] **Etapa 4.2**: Motor de Reservas (Reservation Core) (`Reservation`, `Guest`, `StayPeriod`, `IReservationRepository`, `InMemoryReservationRepository`, `reservationService`, `reservationRouter`, prevenção atômica de overbooking, bloqueio de UHs inativas/em manutenção, transições de estado Check-in/Check-out/Cancelamento/No-Show).
+- [x] **Etapa 4.3**: Integração do PMS com os Agentes de IA (Alimentação do `ContextService` via `pmsService` e `reservationService`, prompts especializados de `reception_agent` e `housekeeping_agent`, permissão em modo read-only de consulta sem mutação de dados operacionais e suporte total a multi-tenant).
 
 ---
 
@@ -42,3 +44,5 @@
 - **Arquitetura SaaS**: Multi-Tenant desacoplado com RBAC, Repository, Onboarding e Middlewares de responsabilidade única.
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
 - **Milestone 4 (Etapa 4.1)**: 100% Concluído e validado com suporte a categorias, UHs, validações estritas, soft delete e isolamento multi-tenant.
+- **Milestone 4 (Etapa 4.2)**: 100% Concluído e validado com motor de reservas completo, prevenção atômica de overbooking, isolamento multi-tenant e transições de estado puras.
+- **Milestone 4 (Etapa 4.3)**: 100% Concluído e validado com integração nativa do PMS ao pipeline de IA (`ContextService` -> `pmsService`/`reservationService` -> `PromptRegistry` -> `aiOrchestrator`).

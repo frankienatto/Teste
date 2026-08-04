@@ -44,6 +44,24 @@ export interface OperationalContext {
     name: string;
     role: string;
   } | null;
+  pmsData?: {
+    categories: any[];
+    units: any[];
+    reservations: any[];
+    summary: {
+      totalCategories: number;
+      totalUnits: number;
+      activeUnits: number;
+      occupiedUnits: number;
+      dirtyUnits: number;
+      cleanUnits: number;
+      inspectedUnits: number;
+      maintenanceUnits: number;
+      outOfServiceUnits: number;
+      occupancyRatePercent: number;
+      totalActiveReservations: number;
+    };
+  } | null;
   sessionHistory: ChatMessage[];
   metadata: Record<string, any>;
 }

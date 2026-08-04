@@ -12,7 +12,11 @@ import {
 } from './pmsTypes.ts';
 
 export class PmsService {
-  constructor(private repo: IRoomRepository = roomRepository) {}
+  private repo: IRoomRepository;
+
+  constructor(repo: IRoomRepository = roomRepository) {
+    this.repo = repo;
+  }
 
   // --- CATEGORIAS ---
 
