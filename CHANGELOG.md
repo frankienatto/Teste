@@ -2,6 +2,16 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 5 - Etapa 5.3: Integração Google Calendar (via n8n)] - 2026-08-03
+
+### Adicionado
+- **Módulo Google Calendar Foundation (`server/modules/integration/gcal/`) conforme ADR-005**:
+  - `googleCalendarTypes.ts`: Tipos e interfaces de contrato (`GCalEventType`, `GCalEventPayload`, `GCalSyncRequest`, `GCalSyncLog`, `GCalSyncStatus`, `GCalSyncResponse`).
+  - `googleCalendarService.ts`: Serviço orquestrador desacoplado com trava de idempotência por `eventId`, controle de versionamento `eventVersion`, mapeamento de 7 eventos operacionais (`reservation.created`, `reservation.updated`, `reservation.cancelled`, `room.blocked`, `room.maintenance`, `housekeeping.task`, `custom.calendar.event`), atualização do PMS e retenção de auditoria por tenant.
+  - `googleCalendarRouter.ts`: Endpoints Express REST (`POST /api/integration/google-calendar/sync`, `GET /status`, `GET /logs`) com contexto multi-tenant.
+- **Integração com o ContextService da IA (`server/modules/ai/contextService.ts`)**:
+  - Exposição de `googleCalendar` (resumo de ID do calendário, total sincronizados e status) em modo read-only no contexto dos Agentes de IA.
+
 ## [Milestone 5 - Etapa 5.2: Motor de Sincronização iCal Universal] - 2026-08-03
 
 ### Adicionado

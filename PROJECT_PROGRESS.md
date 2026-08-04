@@ -36,10 +36,10 @@
 
 ---
 
-### MILESTONE 5 — Barramento de Integração n8n, Aloha PMS, iCal Universal & Google Calendar [EM ANDAMENTO]
+### MILESTONE 5 — Barramento de Integração n8n, Aloha PMS, iCal Universal & Google Calendar [CONCLUÍDO]
 - [x] **Etapa 5.1**: Módulo de Integração n8n & Normalização de Payloads (`integrationTypes`, `eventNormalizer`, `alohaIntegrationService`, `n8nService`, `n8nRouter`, ingestão de eventos do Aloha PMS, auditoria por tenant e alimentação do `ContextService`).
 - [x] **Etapa 5.2**: Motor de Sincronização iCal Universal (`icalTypes`, `icalParser` RFC 5545, `icalGenerator`, `icalService`, `icalRouter`, exportação de feeds `.ics` por UH/propriedade, importação/parsing de calendários externos e alimentação read-only do `ContextService`).
-- [ ] **Etapa 5.3**: Integração com Google Calendar API (Sincronização bidirecional de eventos operacionais, bloqueios e bloqueio de manutenção via n8n).
+- [x] **Etapa 5.3**: Integração com Google Calendar API via n8n (`googleCalendarTypes`, `googleCalendarService`, `googleCalendarRouter`, suporte a 7 tipos de eventos operacionais, trava de idempotência, versionamento, logs de auditoria e métricas read-only no `ContextService`).
 
 ---
 
@@ -51,6 +51,6 @@
 - **Arquitetura SaaS**: Multi-Tenant desacoplado com RBAC, Repository, Onboarding e Middlewares de responsabilidade única.
 - **Milestone 3**: 100% Concluído e testado end-to-end com isolamento de tenant e retenção FIFO de sessão.
 - **Milestone 4 (Etapas 4.1, 4.2 e 4.3)**: 100% Concluído e validado com inventário de UHs, motor de reservas, prevenção atômica de overbooking e integração completa com os Agentes de IA (`reception_agent` e `housekeeping_agent`).
-- **Milestone 5 (Etapas 5.1 e 5.2)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor de sincronização iCal Universal (RFC 5545), endpoints REST `/api/integration/n8n` e `/api/integration/ical`, e suporte ao `ContextService` da IA.
+- **Milestone 5 (Etapas 5.1, 5.2 e 5.3)**: 100% Concluído e validado com o Barramento de Integração n8n, adaptador Aloha PMS, motor iCal Universal (RFC 5545), Google Calendar Foundation via n8n, endpoints REST `/api/integration/n8n`, `/api/integration/ical`, `/api/integration/google-calendar` e suporte read-only no `ContextService` da IA.
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 
