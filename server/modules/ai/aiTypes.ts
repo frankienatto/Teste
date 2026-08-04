@@ -3,6 +3,8 @@ import { RevenueSummaryForAI } from '../revenue/revenueTypes.ts';
 import { DirectBookingSummaryForAI } from '../directBooking/directBookingTypes.ts';
 import { SalesSummaryForAI } from '../sales/salesTypes.ts';
 import { MarketingSummaryForAI } from '../marketing/marketingTypes.ts';
+import { ExecutiveSummaryForAI } from '../executive/executiveTypes.ts';
+import { ExecutiveCopilotSummaryForAI } from '../executiveCopilot/executiveCopilotTypes.ts';
 
 export const DEFAULT_SESSION_HISTORY_LIMIT = 10;
 
@@ -77,6 +79,8 @@ export interface OperationalContext {
     directBookingSummary?: DirectBookingSummaryForAI | null;
     salesSummary?: SalesSummaryForAI | null;
     marketingSummary?: MarketingSummaryForAI | null;
+    executiveSummary?: ExecutiveSummaryForAI | null;
+    executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
   } | null;
   sessionHistory: ChatMessage[];
   guestIntelligence?: GuestIntelligence | null;
@@ -84,6 +88,8 @@ export interface OperationalContext {
   directBookingSummary?: DirectBookingSummaryForAI | null;
   salesSummary?: SalesSummaryForAI | null;
   marketingSummary?: MarketingSummaryForAI | null;
+  executiveSummary?: ExecutiveSummaryForAI | null;
+  executiveCopilotSummary?: ExecutiveCopilotSummaryForAI | null;
   metadata: Record<string, any>;
 }
 

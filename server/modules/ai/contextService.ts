@@ -16,6 +16,8 @@ import { revenueService } from '../revenue/revenueService.ts';
 import { directBookingService } from '../directBooking/directBookingService.ts';
 import { salesService } from '../sales/salesService.ts';
 import { marketingService } from '../marketing/marketingService.ts';
+import { executiveService } from '../executive/executiveService.ts';
+import { executiveCopilotService } from '../executiveCopilot/executiveCopilotService.ts';
 import { cacheConfig } from '../../config/cacheConfig.ts';
 import { metricsCollector } from '../../utils/metricsCollector.ts';
 import { env } from '../../config/environment.ts';
@@ -143,8 +145,10 @@ export class ContextService {
     let directBookingSummary = null;
     let salesSummary = null;
     let marketingSummary = null;
+    let executiveSummary = null;
+    let executiveCopilotSummary = null;
     try {
-      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum, mktSum] = await Promise.all([
+      const [categories, units, inventorySummary, reservations, housekeepingSummary, receptionDashboard, maintenanceDashboard, revSummary, directBookingSum, salesSum, mktSum, execSum, execCopilotSum] = await Promise.all([
         pmsService.listCategories(resolvedOrgId, resolvedPropId),
         pmsService.listUnits(resolvedOrgId, resolvedPropId),
         pmsService.getInventorySummary(resolvedOrgId, resolvedPropId),
@@ -155,13 +159,17 @@ export class ContextService {
         revenueService.getRevenueSummaryForAI(resolvedOrgId, resolvedPropId),
         directBookingService.getDirectBookingSummaryForAI(resolvedOrgId, resolvedPropId),
         salesService.getSalesSummaryForAI(resolvedOrgId, resolvedPropId),
-        marketingService.getMarketingSummaryForAI(resolvedOrgId, resolvedPropId)
+        marketingService.getMarketingSummaryForAI(resolvedOrgId, resolvedPropId),
+        executiveService.getExecutiveSummaryForAI(resolvedOrgId, resolvedPropId),
+        executiveCopilotService.getExecutiveCopilotSummaryForAI(resolvedOrgId, resolvedPropId)
       ]);
 
       revenueSummary = revSummary;
       directBookingSummary = directBookingSum;
       salesSummary = salesSum;
       marketingSummary = mktSum;
+      executiveSummary = execSum;
+      executiveCopilotSummary = execCopilotSum;
 
       const activeReservations = reservations.filter(r => r.status === 'confirmed' || r.status === 'checked_in');
       const occupiedUnitsCount = reservations.filter(r => r.status === 'checked_in').length;
@@ -211,7 +219,9 @@ export class ContextService {
         revenueSummary,
         directBookingSummary,
         salesSummary,
-        marketingSummary
+        marketingSummary,
+        executiveSummary,
+        executiveCopilotSummary
       };
     } catch (err: any) {
       console.warn("⚠️ [ContextService] Erro ao carregar contexto PMS via Services:", err?.message || err);
@@ -228,6 +238,8 @@ export class ContextService {
       directBookingSummary,
       salesSummary,
       marketingSummary,
+      executiveSummary,
+      executiveCopilotSummary,
       metadata: {
         timestamp: new Date().toISOString(),
         resolvedFrom: 'pmsService_reservationService_and_n8nService'

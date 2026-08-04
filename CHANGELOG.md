@@ -2,6 +2,42 @@
 
 Todos os desvios notáveis e implementações deste projeto serão documentados neste arquivo.
 
+## [Milestone 10 - Etapa 10.2: Executive Copilot & Strategic Decision Intelligence] - 2026-08-04
+
+### Adicionado
+- **Módulo Executive Copilot (`server/modules/executiveCopilot/`)**:
+  - `executiveCopilotTypes.ts`: Interfaces para `HealthScoreBreakdown`, `ExecutiveRisk`, `ExecutiveOpportunity`, `ExecutiveDailyBrief`, `ExecutiveCopilotDashboard` e `ExecutiveCopilotSummaryForAI`.
+  - `executiveCopilotRepository.ts`: Repositório Multi-Tenant de análise quantitativa e diagnósticos 100% READ-ONLY que consome exclusivamente os serviços públicos de Executive Intelligence, Revenue, Marketing, Sales, Direct Booking, CRM, Recepção, Governança, Manutenção e PMS.
+  - `executiveCopilotService.ts`: Serviço agregador que calcula o `Executive Health Score` (0–100), `Risk Score`, `Opportunity Score`, Healths setoriais, Top 10 riscos, Top 10 oportunidades, prioridades e o `Executive Daily Brief`.
+  - `executiveCopilotRouter.ts`: Endpoints REST padronizados (`GET /api/executive-copilot/dashboard`, `/summary`, `/health`, `/risks`, `/opportunities`, `/brief`) protegidos por Rate Limiting e isolamento Multi-Tenant.
+- **Injeção do Resumo do Copilot Executivo no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto ultra-compacto `executiveCopilotSummary` no `OperationalContext` fornecendo visão sintética de scores, top riscos (máx 5), top oportunidades (máx 5) e breve diário.
+- **Agente de Copilot Executivo (`executive_copilot_agent`) e Roteamento Determinístico**:
+  - Registro de `executive_copilot_agent` no `PromptRegistry` (`server/ai/promptRegistry.ts`) com diretrizes estritas em MODO CONSULTA / READ-ONLY para auxílio à diretoria, presidência e CEO.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com mapeamento determinístico para os termos: `copilot`, `executive copilot`, `health score`, `executive score`, `risk score`, `opportunity score`, `executive dashboard`, `estratégia`, `prioridades`, `diretoria`, `presidência`, `ceo`, `gestão`, `decisão` e `brief`.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Executive Copilot & Strategic Decision` e documentação de todas as rotas `/executive-copilot/*`.
+- **Suíte de Testes Automatizados (`server/modules/executiveCopilot/executiveCopilotService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard do Copilot, Health Scores, Riscos, Oportunidades, Executive Daily Brief, `executive_copilot_agent`, `AgentRouter` e `ContextService`.
+
+## [Milestone 10 - Etapa 10.1: Executive Intelligence Foundation] - 2026-08-04
+
+### Adicionado
+- **Módulo Executive Intelligence (`server/modules/executive/`)**:
+  - `executiveTypes.ts`: Interfaces para `ExecutiveKpis`, `ExecutiveAlert`, `ExecutivePriorities`, `ExecutiveSummaryModule`, `ExecutiveDashboard` e `ExecutiveSummaryForAI`.
+  - `executiveRepository.ts`: Repositório Multi-Tenant de agregação 100% READ-ONLY que consolida métricas públicas dos serviços de Revenue, Marketing, Sales, Direct Booking, Recepção, Governança, Manutenção e PMS.
+  - `executiveService.ts`: Camada de serviço agregadora que fornece dashboard unificado, KPIs da diretoria, alertas estratégicos, prioridades operacionais do dia e o resumo condensado `ExecutiveSummaryForAI`.
+  - `executiveRouter.ts`: Endpoints REST padronizados (`GET /api/executive/dashboard`, `GET /api/executive/kpis`, `GET /api/executive/alerts`, `GET /api/executive/priorities`, `GET /api/executive/summary`) protegidos por Rate Limiting e cabeçalhos Multi-Tenant.
+- **Injeção de Resumo Executivo no ContextService (`server/modules/ai/contextService.ts`)**:
+  - Inclusão do objeto enxuto `executiveSummary` no `OperationalContext` fornecendo visão sintética de KPIs e prioridades sem estouro de contexto.
+- **Agente de Diretoria e Roteamento Determinístico (`executive_agent`)**:
+  - Registro do `executive_agent` no `PromptRegistry` (`server/ai/promptRegistry.ts`) com diretrizes estritas em MODO CONSULTA / READ-ONLY.
+  - Atualização do `AgentRouter` (`server/modules/ai/agentRouter.ts`) com mapeamento determinístico para dúvidas sobre diretoria, gerência, dashboard, kpis, indicadores, estratégia, prioridades e riscos.
+- **Documentação OpenAPI 3.0 (`server/docs/openapi.json`)**:
+  - Inclusão da tag `Inteligência Executiva & Diretoria` e documentação de todas as rotas `/executive/*`.
+- **Suíte de Testes Automatizados (`server/modules/executive/executiveService.test.ts`)**:
+  - Validação completa (100% sucesso) do dashboard, KPIs, alertas, prioridades, resumo para IA, `executive_agent`, `AgentRouter` e `ContextService`.
+
 ## [Milestone 9 - Etapa 9.4: Marketing Intelligence Foundation] - 2026-08-04
 
 ### Adicionado

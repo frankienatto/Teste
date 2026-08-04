@@ -71,6 +71,12 @@
 
 ---
 
+### MILESTONE 10 — AI Operations & Autonomous Copilot Foundation [EM ANDAMENTO]
+- [x] **Etapa 10.1**: Executive Intelligence Foundation (`server/modules/executive/` contendo `executiveTypes.ts`, `executiveRepository.ts` consumindo exclusivamente serviços públicos de Revenue, Marketing, Sales, Direct Booking, Recepção, Governança, Manutenção e PMS em modo 100% READ-ONLY, `executiveService.ts` consolidando KPIs da diretoria, alertas estratégicos, prioridades operacionais e `ExecutiveSummaryForAI`, `executiveRouter.ts` com endpoints `/api/executive/dashboard`, `/kpis`, `/alerts`, `/priorities`, `/summary`, injeção de `executiveSummary` no `ContextService`, registro de `executive_agent` READ-ONLY no `PromptRegistry`, roteamento em `AgentRouter` e atualização no OpenAPI 3.0).
+- [x] **Etapa 10.2**: Executive Copilot & Strategic Decision Intelligence (`server/modules/executiveCopilot/` com `executiveCopilotTypes.ts`, `executiveCopilotRepository.ts` calculando diagnósticos e scores 100% READ-ONLY a partir de serviços públicos de Executive, Revenue, Marketing, Sales, Direct Booking, CRM, Recepção, Governança, Manutenção e PMS, `executiveCopilotService.ts` calculando `Executive Health Score` (0-100), `Risk Score`, `Opportunity Score`, Healths setoriais, Top 10 riscos, Top 10 oportunidades, prioridades e `Executive Daily Brief`, `executiveCopilotRouter.ts` com endpoints `/api/executive-copilot/dashboard`, `/summary`, `/health`, `/risks`, `/opportunities`, `/brief`, injeção de `executiveCopilotSummary` no `ContextService`, agente `executive_copilot_agent` READ-ONLY no `PromptRegistry`, roteamento determinístico em `AgentRouter` e atualização no OpenAPI 3.0).
+
+---
+
 ## Status Atual da Plataforma
 - **Build**: ✅ Aprovado
 - **Lint**: ✅ Aprovado
@@ -85,5 +91,6 @@
 - **Milestone 7 (Etapas 7.1, 7.2 e 7.3)**: 100% Concluído e validado com Housekeeping Intelligence, Reception Copilot e Maintenance Intelligence.
 - **Milestone 8 (Etapas 8.1, 8.2, 8.3 e 8.4)**: 100% Concluído (Security Hardening + Observabilidade & Resiliência + Performance & Context Cache + Especificação OpenAPI 3.0 & Swagger UI).
 - **Milestone 9 (Etapas 9.1, 9.2, 9.3 e 9.4)**: 100% Concluído (Revenue Intelligence, Commercial CRM & Direct Booking Intelligence, Sales CRM e Marketing Intelligence - Segmentação inteligente, Customer Journey, Mercados geográficos, Retenção, LTV, `marketing_agent`, `ContextService` e OpenAPI 3.0).
+- **Milestone 10 (Etapas 10.1 e 10.2)**: 100% Concluídos (Executive Intelligence Foundation e Executive Copilot & Strategic Decision Intelligence - Diagnósticos 100% READ-ONLY com Executive Health Score 0-100, Risk/Opportunity Scores, Top 10 riscos e oportunidades, `executive_copilot_agent`, `ContextService` e OpenAPI 3.0).
 - **Arquitetura Atualizada**: Channel Manager Próprio eliminado/substituído pela camada inteligente sobre Aloha PMS + n8n + iCal + Google Calendar (ADR-005).
 

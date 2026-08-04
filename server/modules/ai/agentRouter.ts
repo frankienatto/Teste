@@ -9,6 +9,16 @@ export interface RouteRule {
 export class AgentRouter {
   private rules: RouteRule[] = [
     {
+      agentId: 'executive_copilot_agent',
+      domain: 'Executive Copilot & Strategic Decision Intelligence',
+      keywords: ['copilot', 'executive copilot', 'health score', 'executive score', 'risk score', 'opportunity score', 'executive dashboard', 'estratégia', 'estrategia', 'prioridades', 'diretoria', 'presidência', 'presidencia', 'ceo', 'gestão', 'gestao', 'decisão', 'decisao', 'brief', 'executive brief']
+    },
+    {
+      agentId: 'executive_agent',
+      domain: 'Inteligência Executiva & Diretoria',
+      keywords: ['executivo', 'dashboard', 'diretoria', 'gerência', 'gerencia', 'indicadores', 'resumo executivo', 'kpis', 'performance', 'gestão', 'gestao', 'prioridades', 'riscos', 'estratégia', 'estrategia', 'visão geral', 'visao geral']
+    },
+    {
       agentId: 'marketing_agent',
       domain: 'Marketing Intelligence & Segmentação',
       keywords: ['marketing', 'campanha', 'segmentação', 'segmentacao', 'retenção', 'retencao', 'cliente', 'engajamento', 'mercado', 'perfil', 'recorrência', 'recorrencia', 'ltv', 'journey', 'segmento', 'hóspede inativo', 'hospede inativo', 'vip inativo']

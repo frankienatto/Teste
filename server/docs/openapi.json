@@ -956,6 +956,170 @@
         }
       }
     },
+    "/executive/dashboard": {
+      "get": {
+        "tags": ["Inteligência Executiva & Diretoria"],
+        "summary": "Retorna o painel consolidado do Executive Intelligence com KPIs, alertas e prioridades",
+        "operationId": "getExecutiveDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard executivo retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/executive/kpis": {
+      "get": {
+        "tags": ["Inteligência Executiva & Diretoria"],
+        "summary": "Retorna os KPIs consolidados de receita, comercial, marketing e operações",
+        "operationId": "getExecutiveKpis",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "KPIs executivos retornados com sucesso"
+          }
+        }
+      }
+    },
+    "/executive/alerts": {
+      "get": {
+        "tags": ["Inteligência Executiva & Diretoria"],
+        "summary": "Retorna alertas estratégicos e operacionais da diretoria",
+        "operationId": "getExecutiveAlerts",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alertas executivos retornados com sucesso"
+          }
+        }
+      }
+    },
+    "/executive/priorities": {
+      "get": {
+        "tags": ["Inteligência Executiva & Diretoria"],
+        "summary": "Retorna as prioridades diárias e riscos operacionais",
+        "operationId": "getExecutivePriorities",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prioridades executivas retornadas com sucesso"
+          }
+        }
+      }
+    },
+    "/executive/summary": {
+      "get": {
+        "tags": ["Inteligência Executiva & Diretoria"],
+        "summary": "Retorna os resumos operacionais e comerciais consolidados por módulos",
+        "operationId": "getExecutiveSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumo executivo retornado com sucesso"
+          }
+        }
+      }
+    },
+    "/executive-copilot/dashboard": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna o dashboard completo do Executive Copilot com Health Scores, Riscos e Oportunidades",
+        "operationId": "getExecutiveCopilotDashboard",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Dashboard do Executive Copilot retornado com sucesso" }
+        }
+      }
+    },
+    "/executive-copilot/summary": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna o resumo executivo compacto para acompanhamento rápido",
+        "operationId": "getExecutiveCopilotSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Resumo do Executive Copilot retornado com sucesso" }
+        }
+      }
+    },
+    "/executive-copilot/health": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna os scores de saúde estratégica e setoriais da propriedade",
+        "operationId": "getExecutiveCopilotHealth",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Health scores executivos retornados com sucesso" }
+        }
+      }
+    },
+    "/executive-copilot/risks": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna os Top 10 riscos operacionais e estratégicos identificados pelo Copilot",
+        "operationId": "getExecutiveCopilotRisks",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Riscos executivos retornados com sucesso" }
+        }
+      }
+    },
+    "/executive-copilot/opportunities": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna as Top 10 oportunidades estratégicas recomendadas pelo Copilot",
+        "operationId": "getExecutiveCopilotOpportunities",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Oportunidades executivas retornadas com sucesso" }
+        }
+      }
+    },
+    "/executive-copilot/brief": {
+      "get": {
+        "tags": ["Executive Copilot & Strategic Decision"],
+        "summary": "Retorna o Executive Daily Brief condensado da diretoria",
+        "operationId": "getExecutiveCopilotBrief",
+        "parameters": [
+          { "$ref": "#/components/parameters/XOrganizationId" },
+          { "$ref": "#/components/parameters/XPropertyId" }
+        ],
+        "responses": {
+          "200": { "description": "Executive Daily Brief retornado com sucesso" }
+        }
+      }
+    },
     "/housekeeping/tasks": {
       "get": {
         "tags": ["Governança - Housekeeping"],
